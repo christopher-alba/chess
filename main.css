@@ -1,0 +1,45 @@
+.chessBoard{
+    width:600px;
+    height:600px;
+    padding:40px;
+    background:rgb(196, 126, 80);
+    border-radius:30px;
+    border:3px outset rgb(185, 101, 45);
+    position:relative;
+}
+.boardInner{
+    width:100%;
+    height:100%;
+    border:3px solid black;
+    position:relative;
+    overflow:hidden;
+}
+
+.black{
+    background:black;
+}
+
+.white{
+   background: none;
+}
+
+.chessPiece{
+    font-size:3rem;
+    margin-top:10px;
+    
+}
+.blackPiece{
+    color: rgb(114, 55, 16);
+}
+.whitePiece{
+    color:white;
+}
+.tile{
+    text-align:center;
+}
+.possibleMove , .possibleEmpassant{
+    box-shadow:inset 0px 0px 3px 3px yellow;
+}
+.possibleMove.chessPiece {
+    box-shadow:none;
+}
