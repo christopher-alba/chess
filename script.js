@@ -5,6 +5,8 @@ let currentTeam = "white";
 var selectedPiece;
 var killedPiece;
 var enemyCount;
+let blockedMoves = [];
+let defendedPieces = [];
 
 let enpassantBlackPieces = [];
 let enpassantWhitePieces = [];
@@ -426,7 +428,7 @@ function pawnMoves(row,col,team){
 }
 function rookMoves(row,col,team){
 
-    checkCross(row,col,team,8);
+    checkCross(row,col,team,8,false);
   
 }
 function knightMoves(row,col,team){
@@ -458,25 +460,29 @@ function knightMoves(row,col,team){
 }
 function bishopMoves(row,col,team){
     // check ascending diagonal (L->R)
-    checkDiagonals(row,col,team,8);
+    checkDiagonals(row,col,team,8,false);
    
 
 }
 function kingMoves(row,col,team){
-    checkDiagonals(row,col,team,1);
-    checkCross(row,col,team,1);
+    checkDiagonals(row,col,team,1,true);
+    checkCross(row,col,team,1,true);
 }
 function queenMoves(row,col,team){
-    checkDiagonals(row,col,team,8);
-    checkCross(row,col,team,8);
+    checkDiagonals(row,col,team,8,false);
+    checkCross(row,col,team,8,false);
 }
-function checkDiagonals(row,col,team,limit){
+function checkDiagonals(row,col,team,limit,king){
     let checkCol = col - 1;
     let checkRow = row + 1;
+    let type = "bishop";
+    if(king == true){
+        type = "king";
+    }
     enemyCount = 0;
     for(i = 0; i < limit; i++){
         if(enemyCount < 1){
-            if(checkTile(checkRow,checkCol, team,"bishop") == true){
+            if(checkTile(checkRow,checkCol, team,type) == true){
                 displayPossibleMove(checkRow,checkCol);
                 checkCol--;
                 checkRow++;
@@ -491,7 +497,7 @@ function checkDiagonals(row,col,team,limit){
     enemyCount = 0;
     for(i = 0; i < limit; i++){
         if(enemyCount < 1){
-            if(checkTile(checkRow,checkCol, team,"bishop") == true){
+            if(checkTile(checkRow,checkCol, team,type) == true){
                 displayPossibleMove(checkRow,checkCol);
                 checkCol++;
                 checkRow--;
@@ -512,7 +518,7 @@ function checkDiagonals(row,col,team,limit){
     enemyCount = 0;
     for(i = 0; i < limit; i++){
         if(enemyCount < 1){
-            if(checkTile(checkRow,checkCol, team,"bishop") == true){
+            if(checkTile(checkRow,checkCol, team,type) == true){
                 displayPossibleMove(checkRow,checkCol);
                 checkCol--;
                 checkRow--;
@@ -528,7 +534,7 @@ function checkDiagonals(row,col,team,limit){
     enemyCount = 0;
     for(i = 0; i < limit; i++){
         if(enemyCount < 1){
-            if(checkTile(checkRow,checkCol, team,"bishop") == true){
+            if(checkTile(checkRow,checkCol, team,type) == true){
                 displayPossibleMove(checkRow,checkCol);
                 checkCol++;
                 checkRow++;
@@ -540,7 +546,11 @@ function checkDiagonals(row,col,team,limit){
         
     }
 }
-function checkCross(row,col,team,limit){
+function checkCross(row,col,team,limit,king){
+    let type = "rook";
+    if(king == true){
+        type = "king";
+    }
     if(col < 7){
         enemyCount = 0;
         let checkCol = col + 1;
@@ -548,7 +558,7 @@ function checkCross(row,col,team,limit){
         // check horizontal moves to the right
         for(let i = 0; i < limit; i++){
             if(enemyCount < 1){
-                if(checkTile(row,checkCol,team,"rook") == true ){
+                if(checkTile(row,checkCol,team,type) == true ){
                     displayPossibleMove(row,checkCol);
                     checkCol++;
                 }
@@ -566,7 +576,7 @@ function checkCross(row,col,team,limit){
         let checkCol = col - 1;
         for(let i = 0; i < limit; i++){
             if(enemyCount < 1){
-                if(checkTile(row,checkCol,team,"rook") == true){
+                if(checkTile(row,checkCol,team,type) == true){
                     displayPossibleMove(row,checkCol);
                     checkCol--;
                 }
@@ -584,7 +594,7 @@ function checkCross(row,col,team,limit){
         let checkRow = row - 1;
         for(let i = 0; i < limit; i++){
             if(enemyCount < 1){
-                if(checkTile(checkRow,col,team,"rook") == true){
+                if(checkTile(checkRow,col,team,type) == true){
                     displayPossibleMove(checkRow,col);
                     checkRow--;
                 }
@@ -603,7 +613,7 @@ function checkCross(row,col,team,limit){
         let checkRow = row + 1;
         for(let i = 0; i < limit; i++){
             if(enemyCount < 1){
-                if(checkTile(checkRow,col,team,"rook") == true){
+                if(checkTile(checkRow,col,team,type) == true){
                     displayPossibleMove(checkRow,col);
                     checkRow++;
                 }
@@ -740,8 +750,26 @@ function checkTile(row,col,team,piece){
                 console.log(tileChild.hasClass("whitePiece"));
                 
                 if(tileChild.hasClass("whitePiece")){
-                    enemyCount = 1;
-                    return true;
+                    if(piece != "king"){
+                        enemyCount = 1;
+                        return true;
+                    }
+                    else{
+
+                        for(let i = 0; i < defendedPieces.length; i++){
+                            if(row == defendedPieces[i][0] && col == defendedPieces[i][1]){
+                                console.log("enemy piece is defended");
+                                
+                                return false;
+                                
+                                
+                            }
+                        }
+                        return true;
+                        // check if this co-ordinate matches any of the ally intersecting co-ordinates (the enemy piece is being defended by another piece). if it does, return false.
+
+                    }
+                   
                 }
                 
                 return false;
@@ -749,8 +777,25 @@ function checkTile(row,col,team,piece){
             }
             else{
                 if(tileChild.hasClass("blackPiece")){
-                    enemyCount = 1;
-                    return true;
+                    if(piece != "king"){
+                        enemyCount = 1;
+                        return true;
+                    }
+                    else{
+
+                        for(let i = 0; i < defendedPieces.length; i++){
+                            if(row == defendedPieces[i][0] && col == defendedPieces[i][1]){
+                                console.log("enemy piece is defended");
+                                
+                                return false;
+                                
+                                
+                            }
+                        }
+                        return true;
+                        // check if this co-ordinate matches any of the ally intersecting co-ordinates (the enemy piece is being defended by another piece). if it does, return false.
+
+                    }
                 }
                 
                 return false;
@@ -759,6 +804,10 @@ function checkTile(row,col,team,piece){
         }
         
         
+    }
+    else if(piece == "king"){
+        // check if the co-ordinate of the tile match any of the blocked moves
+        // clear the blocked moves array when changing teams
     }
     
     // if no elements inside
@@ -952,11 +1001,12 @@ function movePiece(row,col,initialRow){
         
 
     }
-   
+    blockedMoves = [];
+    defendedPieces = [];
     clearAttackLines();
     checkAttackLines();
     clearMoves();
-
+   
     if(currentTeam == "black"){
         console.log("changing teams");
         
@@ -1031,6 +1081,8 @@ $(".promotion").click(function(){
     }
     selectedPiece.classList.remove("promotion");
     removeExchangeMenu();
+    blockedMoves = [];
+    defendedPieces = [];
     clearAttackLines();
     checkAttackLines();
    
@@ -1040,6 +1092,7 @@ $(".promotion").click(function(){
     else{
         currentTeam = "black";
     }
+    
 });
 function replaceLocationClass(row,col){
 
@@ -1072,7 +1125,7 @@ function checkAttackLines(){
         }
     
      
-
+        // display all the attack lines
         for(let i = 0; i < pieces.length; i++){
             //get row and col of piece
             var row;
@@ -1120,17 +1173,114 @@ function checkAttackLines(){
             }
 
         }
-    
+        
+        var enemyKing;
+        let enemyKings = document.getElementsByClassName("fa-chess-king");
+        var enemyTeam;
+        // display the possible moves of the enemy king
+        if(team == "black"){
+            enemyTeam = "white";
+            if(enemyKings[0].classList.contains("whitePiece")){
+                enemyKing = enemyKings[0];
+            }
+            else{
+                enemyKing = enemyKings[1];
+            }
+        }
+        if(team == "white"){
+            enemyTeam = "black";
+            if(enemyKings[0].classList.contains("blackPiece")){
+                enemyKing = enemyKings[0];
+            }
+            else{
+                enemyKing = enemyKings[1];
+            }
+        }
 
+        var kingRow;
+        var kingCol;
+        // get location of enemyKing
+        for(let i = 0; i < 8; i++){
+            for(let j = 0; j < 8;j++){
+
+                if(enemyKing.classList.contains(i + "x" + j + "piece")){
+                    kingRow = i;
+                    kingCol = j;
+                }
+            }
+        }
+        clearKingLine();
+        enemyKingMoves(kingRow,kingCol,enemyTeam);
+        
+        
     // if the attacklines intersect with the king's possible moves, remove those possible moves.
+    let blockedMovesCount = 0;
+    let kingTotalMoves = 0;
+    let kingTargeted = false;
+    for(let i = 0; i < 8; i++){
+        for(let j = 0; j < 8; j++){
+
+            if($("." + i + "x" + j).hasClass("attackLine")){
+                if($("." + i + "x" + j).hasClass("kingLine")){
+                    blockedMoves.push([i,j]);
+                    blockedMovesCount++;
+
+                }
+                if($("." + i + "x" + j).children().length > 0){
+                    if($("." + i + "x" + j).children().hasClass("fa-chess-king")){
+                        kingTargeted = true;
+                    }
+                }
+             
+             
+            }
+            if($("." + i + "x" + j).hasClass("kingLine")){
+                blockedMoves.push([i,j]);
+                kingTotalMoves++;
+
+            }
+        }
+    }
+    // if the number of king's moves equals the number of intersections, check if an attackline intersects the king
+    if(kingTotalMoves === blockedMovesCount && kingTargeted == true){
+        // check if any of the enemyteam's pieces intersect with the attacklines that target the king
+        // checkmate(enemyTeam);
+    }
+    else if(kingTargeted == true){
+        // check(enemyTeam);
+    }
+
     // if the attacklines intersect with the king, check if there are possible moves. If yes, it's a check. If none, check if ally lines block enemylines. If none, it's checkmate .Otherwise, it's a check.
+}
+function enemyKingMoves(row,col,team){
+    checkKingCross(row,col,team,1);
+    checkKingDiagonals(row,col,team,1);
+}
+function displayKingLine(row,col){
+
+    let tile = document.getElementsByClassName(row + "x" + col)[0]
+    if(tile != undefined){
+        tile.classList.add("kingLine");
+    }
+  
+}
+function clearKingLine(){
+    for(let i = 0; i < 8; i++){
+        for(let j = 0; j < 8; j++){
+            if($("." + i + "x" + j).hasClass("kingLine")){
+                $("." + i + "x" + j).removeClass("kingLine");
+            }
+        }
+    }
 }
 function checkCheckmate(){
     // check after each move if it's a checkmate
 }
 function checkCheck(){
-    // check after each move if it's a check
-    // 
+    
+    // check if king still has possible moves
+    
+
 }
 
 // ************************************************************************************************************************************************
@@ -1159,6 +1309,26 @@ function clearAttackLines(){
         }
     }
 }
+function checkForAlly(row,col,team){
+    let possiblePiece = $("." + row + "x" + col).children();
+    console.log("checking for ally");
+    
+    
+    if(possiblePiece.length > 0){
+        if(team == "white"){
+            if(possiblePiece.hasClass("whitePiece")){
+                return true;
+            }
+            return false;
+        }
+        else{
+            if(possiblePiece.hasClass("blackPiece")){
+                return true;
+            }
+            return false;
+        }
+    }
+}
 function pawnAttackLine(row,col,team){
     // if black pawn, check tiles below
     var checkRow;
@@ -1166,49 +1336,25 @@ function pawnAttackLine(row,col,team){
     if(team == "black"){
         checkCol = col;
         checkRow = row + 1;
-        if(row == 1){
-            // check two tiles ahead
-           
-
-            for(let i = 0; i < 2; i++){
-
-                
-                if(checkTile(checkRow,checkCol,team,"pawnMove") == true){
-                   
-                    displayAttackLine(checkRow,checkCol);
-                    console.log("you can move here");
-                    
-                }
-                else{
-                    // exit loop
-                    i = 2;  
-                }
-                checkRow++;
-            }
-
-        }
-        else if(row < 7){
-            // check one tile ahead
-            if(row == 6){
-                if(checkTile(checkRow,checkCol,team,"pawnMove") == true){
-                    displayAttackLine(checkRow,checkCol);
-
-                }
-            }
-            else{
-                if(checkTile(checkRow,checkCol,team,"pawnMove") == true){
-                   
-                    displayAttackLine(checkRow,checkCol);
-                    // console.log("you can move here");
-                    
-                }
-            }
-           
-
-        }
-        checkCol = col;
-        checkRow = row + 1;
+   
       
+         // if the tile being checked contains an ally, save the position of the tile
+         if(checkForAlly(checkRow,checkCol - 1,team) == true){
+            defendedPieces.push([checkRow,checkCol - 1]);
+        }
+         // if the tile being checked contains an ally, save the position of the tile
+         if(checkForAlly(checkRow,checkCol + 1,team) == true){
+            defendedPieces.push([checkRow,checkCol + 1]);
+        }
+         // if the tile being checked contains an ally, save the position of the tile
+         if(checkForAlly(row,col+ 1 ,team) == true){
+            defendedPieces.push([checkRow,checkCol + 1]);
+        }
+         // if the tile being checked contains an ally, save the position of the tile
+         if(checkForAlly(row, col - 1,team) == true){
+            defendedPieces.push([checkRow,checkCol - 1]);
+        }
+
         if(checkTile(checkRow,checkCol - 1, team, "pawnAttack") == true){
             // console.log("testing 1");
             
@@ -1233,49 +1379,24 @@ function pawnAttackLine(row,col,team){
     if(team == "white"){
         checkCol = col;
         checkRow = row - 1;
-        if(row == 6){
-            // check two tiles ahead
-           
-
-            for(let i = 0; i < 2; i++){
-
-                
-                if(checkTile(checkRow,checkCol,team,"pawnMove") == true){
-                   
-                    displayAttackLine(checkRow,checkCol);
-                    console.log("you can move here");
-                    
-                }
-                else{
-                    // exit loop
-                    i = 2;  
-                }
-                checkRow--;
-            }
-
+    
+        // if the tile being checked contains an ally, save the position of the tile
+         if(checkForAlly(checkRow,checkCol - 1,team) == true){
+            defendedPieces.push([checkRow,checkCol - 1]);
         }
-        else if(row > 0){
-            // check one tile ahead
-            if(row == 1){
-                if(checkTile(checkRow,checkCol,team,"pawnMove") == true){
-                   
-                    displayAttackLine(checkRow,checkCol);
-                   
-                    
-                }
-            }
-            else{
-                if(checkTile(checkRow,checkCol,team,"pawnMove") == true){
-                   
-                    displayAttackLine(checkRow,checkCol);
-                    console.log("you can move here");
-                    
-                }
-            }
+         // if the tile being checked contains an ally, save the position of the tile
+         if(checkForAlly(checkRow,checkCol + 1,team) == true){
+            defendedPieces.push([checkRow,checkCol + 1]);
         }
-        checkCol = col;
-        checkRow = row - 1;
-       
+         // if the tile being checked contains an ally, save the position of the tile
+         if(checkForAlly(row,col+ 1 ,team) == true){
+            defendedPieces.push([checkRow,checkCol + 1]);
+        }
+         // if the tile being checked contains an ally, save the position of the tile
+         if(checkForAlly(row, col - 1,team) == true){
+            defendedPieces.push([checkRow,checkCol - 1]);
+        }
+
         if(checkTile(checkRow,checkCol - 1, team, "pawnAttack") == true){
             // console.log("testing 1");
             
@@ -1301,6 +1422,35 @@ function rookAttackLine(row,col,team){
   
 }
 function knightAttackLine(row,col,team){
+
+
+     // if the tile being checked contains an ally, save the position of the tile
+     if(checkForAlly(row - 2,col - 1,team) == true){
+        defendedPieces.push([row - 2, col -1]);
+    }
+    if(checkForAlly(row - 2,col + 1,team) == true){
+        defendedPieces.push([row - 2, col + 1]);
+    }
+    if(checkForAlly(row - 1,col - 2,team) == true){
+        defendedPieces.push([row - 1, col -2]);
+    }
+    if(checkForAlly(row - 1,col + 2,team) == true){
+        defendedPieces.push([row - 1, col + 2]);
+    }
+    if(checkForAlly(row + 2,col - 1,team) == true){
+        defendedPieces.push([row + 2, col -1]);
+    }
+    if(checkForAlly(row + 2,col + 1,team) == true){
+        defendedPieces.push([row + 2, col + 1]);
+    }
+    if(checkForAlly(row + 1,col - 2,team) == true){
+        defendedPieces.push([row + 1, col - 2]);
+    }
+    if(checkForAlly(row + 1,col + 2,team) == true){
+        defendedPieces.push([row + 1, col + 2]);
+    }
+
+
     if(checkTile(row - 2,col - 1, team,"knight") == true){
         displayAttackLine(row - 2,col - 1);
     }
@@ -1347,6 +1497,10 @@ function checkDiagonalsAttack(row,col,team,limit){
     enemyCount = 0;
     for(i = 0; i < limit; i++){
         if(enemyCount < 1){
+            if(checkForAlly(checkRow,checkCol,team) == true){
+                defendedPieces.push([checkRow, checkCol]);
+            }
+        
             if(checkTile(checkRow,checkCol, team,"bishop") == true){
                 displayAttackLine(checkRow,checkCol);
                 checkCol--;
@@ -1362,6 +1516,9 @@ function checkDiagonalsAttack(row,col,team,limit){
     enemyCount = 0;
     for(i = 0; i < limit; i++){
         if(enemyCount < 1){
+            if(checkForAlly(checkRow,checkCol,team) == true){
+                defendedPieces.push([checkRow, checkCol]);
+            }
             if(checkTile(checkRow,checkCol, team,"bishop") == true){
                 displayAttackLine(checkRow,checkCol);
                 checkCol++;
@@ -1383,6 +1540,9 @@ function checkDiagonalsAttack(row,col,team,limit){
     enemyCount = 0;
     for(i = 0; i < limit; i++){
         if(enemyCount < 1){
+            if(checkForAlly(checkRow,checkCol,team) == true){
+                defendedPieces.push([checkRow, checkCol]);
+            }
             if(checkTile(checkRow,checkCol, team,"bishop") == true){
                 displayAttackLine(checkRow,checkCol);
                 checkCol--;
@@ -1399,6 +1559,9 @@ function checkDiagonalsAttack(row,col,team,limit){
     enemyCount = 0;
     for(i = 0; i < limit; i++){
         if(enemyCount < 1){
+            if(checkForAlly(checkRow,checkCol,team) == true){
+                defendedPieces.push([checkRow, checkCol]);
+            }
             if(checkTile(checkRow,checkCol, team,"bishop") == true){
                 displayAttackLine(checkRow,checkCol);
                 checkCol++;
@@ -1419,6 +1582,9 @@ function checkCrossAttack(row,col,team,limit){
         // check horizontal moves to the right
         for(let i = 0; i < limit; i++){
             if(enemyCount < 1){
+                if(checkForAlly(row,checkCol,team) == true){
+                    defendedPieces.push([row, checkCol]);
+                }
                 if(checkTile(row,checkCol,team,"rook") == true ){
                     displayAttackLine(row,checkCol);
                     checkCol++;
@@ -1437,6 +1603,9 @@ function checkCrossAttack(row,col,team,limit){
         let checkCol = col - 1;
         for(let i = 0; i < limit; i++){
             if(enemyCount < 1){
+                if(checkForAlly(row,checkCol,team) == true){
+                    defendedPieces.push([row, checkCol]);
+                }
                 if(checkTile(row,checkCol,team,"rook") == true){
                     displayAttackLine(row,checkCol);
                     checkCol--;
@@ -1455,6 +1624,9 @@ function checkCrossAttack(row,col,team,limit){
         let checkRow = row - 1;
         for(let i = 0; i < limit; i++){
             if(enemyCount < 1){
+                if(checkForAlly(checkRow,col,team) == true){
+                    defendedPieces.push([checkRow, col]);
+                }
                 if(checkTile(checkRow,col,team,"rook") == true){
                     displayAttackLine(checkRow,col);
                     checkRow--;
@@ -1474,8 +1646,157 @@ function checkCrossAttack(row,col,team,limit){
         let checkRow = row + 1;
         for(let i = 0; i < limit; i++){
             if(enemyCount < 1){
+                if(checkForAlly(checkRow,col,team) == true){
+                    defendedPieces.push([checkRow, col]);
+                }
                 if(checkTile(checkRow,col,team,"rook") == true){
                     displayAttackLine(checkRow,col);
+                    checkRow++;
+                }
+                else{
+                    i = limit;
+                }
+            }
+        }
+    }
+
+}
+// the functions below check the enemy king's possible moves before accounting for attack lines and defended pieces, hence it uses the bishop and rook types.
+function checkKingDiagonals(row,col,team,limit){
+    let checkCol = col - 1;
+    let checkRow = row + 1;
+    enemyCount = 0;
+    for(i = 0; i < limit; i++){
+        if(enemyCount < 1){
+            if(checkTile(checkRow,checkCol, team,"bishop") == true){
+                displayKingLine(checkRow,checkCol);
+                checkCol--;
+                checkRow++;
+            }
+            else{
+                i = limit;
+            }
+        }
+    }
+    checkCol = col + 1;
+    checkRow = row - 1;
+    enemyCount = 0;
+    for(i = 0; i < limit; i++){
+        if(enemyCount < 1){
+            if(checkTile(checkRow,checkCol, team,"bishop") == true){
+                displayKingLine(checkRow,checkCol);
+                checkCol++;
+                checkRow--;
+            }
+            else{
+                i = limit;
+            }
+        }
+       
+    }
+
+
+
+
+    // check descending diagonal (L->R)
+    checkCol = col - 1;
+    checkRow = row - 1;
+    enemyCount = 0;
+    for(i = 0; i < limit; i++){
+        if(enemyCount < 1){
+            if(checkTile(checkRow,checkCol, team,"bishop") == true){
+                displayKingLine(checkRow,checkCol);
+                checkCol--;
+                checkRow--;
+            }
+            else{
+                i = limit;
+            }
+        }
+        
+    }
+    checkCol = col + 1;
+    checkRow = row + 1;
+    enemyCount = 0;
+    for(i = 0; i < limit; i++){
+        if(enemyCount < 1){
+            if(checkTile(checkRow,checkCol, team,"bishop") == true){
+                displayKingLine(checkRow,checkCol);
+                checkCol++;
+                checkRow++;
+            }
+            else{
+                i = limit;
+            }
+        }
+        
+    }
+}
+function checkKingCross(row,col,team,limit){
+    if(col < 7){
+        enemyCount = 0;
+        let checkCol = col + 1;
+    
+        // check horizontal moves to the right
+        for(let i = 0; i < limit; i++){
+            if(enemyCount < 1){
+                if(checkTile(row,checkCol,team,"rook") == true ){
+                    displayKingLine(row,checkCol);
+                    checkCol++;
+                }
+                else{
+                    i = limit;
+                }
+            }
+            
+        }
+    }
+   
+    if(col > 0){
+        enemyCount = 0;
+        // check horizontal moves to the left
+        let checkCol = col - 1;
+        for(let i = 0; i < limit; i++){
+            if(enemyCount < 1){
+                if(checkTile(row,checkCol,team,"rook") == true){
+                    displayKingLine(row,checkCol);
+                    checkCol--;
+                }
+                else{
+                    i = limit;
+                }
+            }
+        
+        }
+    }
+    
+    // check vertical moves above
+    if(row > 0){
+        enemyCount = 0;
+        let checkRow = row - 1;
+        for(let i = 0; i < limit; i++){
+            if(enemyCount < 1){
+                if(checkTile(checkRow,col,team,"rook") == true){
+                    displayKingLine(checkRow,col);
+                    checkRow--;
+                }
+                else{
+                    i = limit;
+                }
+            }
+            
+        }
+    }
+
+    
+    // check vertical moves below
+    if(row < 7){
+        enemyCount = 0;
+        let checkRow = row + 1;
+        for(let i = 0; i < limit; i++){
+            if(enemyCount < 1){
+                if(checkTile(checkRow,col,team,"rook") == true){
+                    displayKingLine(checkRow,col);
                     checkRow++;
                 }
                 else{
