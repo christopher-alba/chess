@@ -806,7 +806,14 @@ function checkTile(row,col,team,piece){
         
     }
     else if(piece == "king"){
+
         // check if the co-ordinate of the tile match any of the blocked moves
+        for(let i = 0; i < blockedMoves.length ; i++){
+            if(row == blockedMoves[i][0] && col == blockedMoves[i][1]){
+                return false;
+            }
+        }
+        return true;
         // clear the blocked moves array when changing teams
     }
     
@@ -1235,7 +1242,7 @@ function checkAttackLines(){
              
             }
             if($("." + i + "x" + j).hasClass("kingLine")){
-                blockedMoves.push([i,j]);
+                
                 kingTotalMoves++;
 
             }
@@ -1355,15 +1362,15 @@ function pawnAttackLine(row,col,team){
             defendedPieces.push([checkRow,checkCol - 1]);
         }
 
-        if(checkTile(checkRow,checkCol - 1, team, "pawnAttack") == true){
+
             // console.log("testing 1");
             
             displayAttackLine(checkRow,checkCol - 1);
-        }
-        if(checkTile(checkRow,checkCol + 1, team, "pawnAttack") == true){
+        
+       
             // console.log("testing 2");
             displayAttackLine(checkRow,checkCol + 1);
-        }
+        
         if(  checkEnpassant(row, col + 1, team) == true){
             displayAttackLine(checkRow,checkCol + 1);
         }
@@ -1397,15 +1404,15 @@ function pawnAttackLine(row,col,team){
             defendedPieces.push([checkRow,checkCol - 1]);
         }
 
-        if(checkTile(checkRow,checkCol - 1, team, "pawnAttack") == true){
+
             // console.log("testing 1");
             
             displayAttackLine(checkRow,checkCol - 1);
-        }
-        if(checkTile(checkRow,checkCol + 1, team, "pawnAttack") == true){
+        
+       
             // console.log("testing 2");
             displayAttackLine(checkRow,checkCol + 1);
-        }
+        
         
         if( checkEnpassant(row, col - 1, team) == true){
             displayAttackLine(checkRow,checkCol - 1);
