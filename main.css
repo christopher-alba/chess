@@ -14,7 +14,31 @@
     position:relative;
     overflow:hidden;
 }
-
+.exchangeMenu{
+    z-index:1;
+    display:none;
+    position:absolute;
+    height:20%;
+    width:50%;
+    top:40%;
+    left:25%;
+    background:gray;
+    text-align:center;
+}
+.pieces{
+    display:flex;
+    width:100%;
+    height:50%;
+    font-size:3rem;
+}
+.pieceContainer{
+    width:25%;
+    height:100%;
+}
+.promotionTitle{
+    width:100%;
+    height:30%;
+}
 .black{
     background:black;
 }
@@ -37,7 +61,7 @@
 .tile{
     text-align:center;
 }
-.possibleMove , .possibleEmpassant{
+.possibleMove , .possibleEmpassant, .pawnExchange{
     box-shadow:inset 0px 0px 3px 3px yellow;
 }
 .possibleMove.chessPiece {

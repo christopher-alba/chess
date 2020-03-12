@@ -4,6 +4,7 @@ let currentTeam = "white";
 
 var selectedPiece;
 var killedPiece;
+var enemyCount;
 
 let enpassantBlackPieces = [];
 let enpassantWhitePieces = [];
@@ -16,7 +17,6 @@ let performingEmpassant = false;
 
 
 initBoard();
-
 
 
 // *************************************************************************************************************************************************
@@ -187,9 +187,7 @@ function initPieces(){
 //                                                          Pieces Functions
 // *************************************************************************************************************************************************
 // *************************************************************************************************************************************************
-
-$(".chessPiece").mousedown(function(){
-
+function onPieceTouch(){
     // if has the class possibleMove , execute the move
     if($(this).hasClass("possibleMove")){
 
@@ -213,7 +211,7 @@ $(".chessPiece").mousedown(function(){
             // if clicking on a piece on the opposite team, dont change the selected piece
         if(currentTeam == "black"){
             if($(this).hasClass("whitePiece")){
-
+                
             }
             else{
                 selectedPiece = this;
@@ -281,11 +279,14 @@ $(".chessPiece").mousedown(function(){
                 queenMoves(row,col,team);
             }
         }
-    
+
     }
-    
-    
-});
+
+}
+let initpieces = document.getElementsByClassName("chessPiece");
+for(let i = 0; i < initpieces.length; i++){
+    initpieces[i].addEventListener("mousedown",onPieceTouch);
+}
 
 function pawnMoves(row,col,team){
     // if black pawn, check tiles below
@@ -317,13 +318,21 @@ function pawnMoves(row,col,team){
         }
         else if(row < 7){
             // check one tile ahead
-            
-            if(checkTile(checkRow,checkCol,team,"pawnMove") == true){
-                   
-                displayPossibleMove(checkRow,checkCol);
-                // console.log("you can move here");
-                
+            if(row == 6){
+                if(checkTile(checkRow,checkCol,team,"pawnMove") == true){
+                    displayPawnExchange(checkRow,checkCol);
+
+                }
             }
+            else{
+                if(checkTile(checkRow,checkCol,team,"pawnMove") == true){
+                   
+                    displayPossibleMove(checkRow,checkCol);
+                    // console.log("you can move here");
+                    
+                }
+            }
+           
 
         }
         checkCol = col;
@@ -339,10 +348,10 @@ function pawnMoves(row,col,team){
             displayPossibleMove(checkRow,checkCol + 1);
         }
         if(  checkEnpassant(row, col + 1, team) == true){
-            displayPossibleEmpassant(checkRow,checkCol + 1);
+            displayPossibleEmpassant(checkRow,checkCol + 1,"right");
         }
         if(  checkEnpassant(row, col -1 , team) == true){
-            displayPossibleEmpassant(checkRow,checkCol - 1);
+            displayPossibleEmpassant(checkRow,checkCol - 1,"left");
         }
       
         
@@ -376,14 +385,22 @@ function pawnMoves(row,col,team){
         }
         else if(row > 0){
             // check one tile ahead
-            
-            if(checkTile(checkRow,checkCol,team,"pawnMove") == true){
+            if(row == 1){
+                if(checkTile(checkRow,checkCol,team,"pawnMove") == true){
                    
-                displayPossibleMove(checkRow,checkCol);
-                console.log("you can move here");
-                
+                    displayPawnExchange(checkRow,checkCol);
+                   
+                    
+                }
             }
-
+            else{
+                if(checkTile(checkRow,checkCol,team,"pawnMove") == true){
+                   
+                    displayPossibleMove(checkRow,checkCol);
+                    console.log("you can move here");
+                    
+                }
+            }
         }
         checkCol = col;
         checkRow = row - 1;
@@ -399,28 +416,204 @@ function pawnMoves(row,col,team){
         }
         
         if( checkEnpassant(row, col - 1, team) == true){
-            displayPossibleEmpassant(checkRow,checkCol - 1);
+            displayPossibleEmpassant(checkRow,checkCol - 1,"left");
         }
         if(checkEnpassant(row, col + 1, team) == true){
-            displayPossibleEmpassant(checkRow,checkCol + 1);
+            displayPossibleEmpassant(checkRow,checkCol + 1,"right");
         }
     }
 
 }
 function rookMoves(row,col,team){
-    
+
+    checkCross(row,col,team,8);
+  
 }
 function knightMoves(row,col,team){
-    
+    if(checkTile(row - 2,col - 1, team,"knight") == true){
+        displayPossibleMove(row - 2,col - 1);
+    }
+    if(checkTile(row - 2,col + 1, team,"knight") == true){
+        displayPossibleMove(row - 2,col + 1);
+    }
+    if(checkTile(row - 1,col - 2, team,"knight") == true){
+        displayPossibleMove(row - 1,col - 2);
+    }
+    if(checkTile(row - 1,col + 2, team,"knight") == true){
+        displayPossibleMove(row - 1,col + 2);
+    }
+    if(checkTile(row + 2,col - 1, team,"knight") == true){
+        displayPossibleMove(row + 2,col - 1);
+    }
+    if(checkTile(row + 2,col + 1, team,"knight") == true){
+        displayPossibleMove(row + 2,col + 1);
+    }
+    if(checkTile(row + 1,col - 2, team,"knight") == true){
+        displayPossibleMove(row + 1,col - 2);
+    }
+    if(checkTile(row + 1,col + 2, team,"knight") == true){
+        displayPossibleMove(row + 1,col + 2);
+    }
+   
 }
 function bishopMoves(row,col,team){
-    
+    // check ascending diagonal (L->R)
+    checkDiagonals(row,col,team,8);
+   
+
 }
 function kingMoves(row,col,team){
-    
+    checkDiagonals(row,col,team,1);
+    checkCross(row,col,team,1);
 }
 function queenMoves(row,col,team){
+    checkDiagonals(row,col,team,8);
+    checkCross(row,col,team,8);
+}
+function checkDiagonals(row,col,team,limit){
+    let checkCol = col - 1;
+    let checkRow = row + 1;
+    enemyCount = 0;
+    for(i = 0; i < limit; i++){
+        if(enemyCount < 1){
+            if(checkTile(checkRow,checkCol, team,"bishop") == true){
+                displayPossibleMove(checkRow,checkCol);
+                checkCol--;
+                checkRow++;
+            }
+            else{
+                i = limit;
+            }
+        }
+    }
+    checkCol = col + 1;
+    checkRow = row - 1;
+    enemyCount = 0;
+    for(i = 0; i < limit; i++){
+        if(enemyCount < 1){
+            if(checkTile(checkRow,checkCol, team,"bishop") == true){
+                displayPossibleMove(checkRow,checkCol);
+                checkCol++;
+                checkRow--;
+            }
+            else{
+                i = limit;
+            }
+        }
+       
+    }
+
+
+
+
+    // check descending diagonal (L->R)
+    checkCol = col - 1;
+    checkRow = row - 1;
+    enemyCount = 0;
+    for(i = 0; i < limit; i++){
+        if(enemyCount < 1){
+            if(checkTile(checkRow,checkCol, team,"bishop") == true){
+                displayPossibleMove(checkRow,checkCol);
+                checkCol--;
+                checkRow--;
+            }
+            else{
+                i = limit;
+            }
+        }
+        
+    }
+    checkCol = col + 1;
+    checkRow = row + 1;
+    enemyCount = 0;
+    for(i = 0; i < limit; i++){
+        if(enemyCount < 1){
+            if(checkTile(checkRow,checkCol, team,"bishop") == true){
+                displayPossibleMove(checkRow,checkCol);
+                checkCol++;
+                checkRow++;
+            }
+            else{
+                i = limit;
+            }
+        }
+        
+    }
+}
+function checkCross(row,col,team,limit){
+    if(col < 7){
+        enemyCount = 0;
+        let checkCol = col + 1;
     
+        // check horizontal moves to the right
+        for(let i = 0; i < limit; i++){
+            if(enemyCount < 1){
+                if(checkTile(row,checkCol,team,"rook") == true ){
+                    displayPossibleMove(row,checkCol);
+                    checkCol++;
+                }
+                else{
+                    i = limit;
+                }
+            }
+            
+        }
+    }
+   
+    if(col > 0){
+        enemyCount = 0;
+        // check horizontal moves to the left
+        let checkCol = col - 1;
+        for(let i = 0; i < limit; i++){
+            if(enemyCount < 1){
+                if(checkTile(row,checkCol,team,"rook") == true){
+                    displayPossibleMove(row,checkCol);
+                    checkCol--;
+                }
+                else{
+                    i = limit;
+                }
+            }
+        
+        }
+    }
+    
+    // check vertical moves above
+    if(row > 0){
+        enemyCount = 0;
+        let checkRow = row - 1;
+        for(let i = 0; i < limit; i++){
+            if(enemyCount < 1){
+                if(checkTile(checkRow,col,team,"rook") == true){
+                    displayPossibleMove(checkRow,col);
+                    checkRow--;
+                }
+                else{
+                    i = limit;
+                }
+            }
+            
+        }
+    }
+
+    
+    // check vertical moves below
+    if(row < 7){
+        enemyCount = 0;
+        let checkRow = row + 1;
+        for(let i = 0; i < limit; i++){
+            if(enemyCount < 1){
+                if(checkTile(checkRow,col,team,"rook") == true){
+                    displayPossibleMove(checkRow,col);
+                    checkRow++;
+                }
+                else{
+                    i = limit;
+                }
+            }
+        }
+    }
+
 }
 function clearMoves(){
     // console.log("testing 1");
@@ -437,6 +630,9 @@ function clearMoves(){
                     currentTile.removeClass("possibleEmpassant");
                 }
             }
+            if(currentTile.hasClass("pawnExchange")){
+                currentTile.removeClass("pawnExchange");
+            }
             if(currentPiece.hasClass("possibleMove")){
                 currentPiece.removeClass("possibleMove");
                 if(currentPiece.hasClass("possibleEmpassant")){
@@ -447,18 +643,19 @@ function clearMoves(){
         }
     }
 }
-
-$(".tile").click(function(){
-    
-    // if tile is empty and is not a possible move, clear the moves
+function onTileClick(){
+// if tile is empty and is not a possible move, clear the moves
     // console.log("testing 1");
     
     if($(this).children().length == 0 && $(this).hasClass("possibleMove") == false){
 
 
         console.log("Clearing moves");
+
+        if($(this).hasClass("pawnExchange") == false){
+            clearMoves();
+        }
         
-        clearMoves();
     }
     else if($(this).hasClass("possibleMove")){
         
@@ -494,9 +691,33 @@ $(".tile").click(function(){
         
     
     }
-    
+    if($(this).hasClass("pawnExchange")){
 
-});
+        clearMoves();
+        var row;
+        var col;
+
+        for(let i = 0; i < 8; i++){
+            for(let j = 0; j < 8; j++){
+                if($(this).hasClass(i + "x" + j)){
+                    row = i;
+                    col = j;
+                }
+            }
+        }
+
+        exchangePawn(row,col);
+
+    }
+}
+let inittiles = document.getElementsByClassName("tile");
+
+for(let i = 0; i < inittiles.length; i++){
+    inittiles[i].addEventListener("click",onTileClick)
+}
+
+
+
 // *************************************************************************************************************************************************
 // *************************************************************************************************************************************************
 //                                                          Game Events Functions
@@ -519,6 +740,7 @@ function checkTile(row,col,team,piece){
                 console.log(tileChild.hasClass("whitePiece"));
                 
                 if(tileChild.hasClass("whitePiece")){
+                    enemyCount = 1;
                     return true;
                 }
                 
@@ -527,6 +749,7 @@ function checkTile(row,col,team,piece){
             }
             else{
                 if(tileChild.hasClass("blackPiece")){
+                    enemyCount = 1;
                     return true;
                 }
                 
@@ -550,29 +773,50 @@ function checkTile(row,col,team,piece){
 
  
 }
-function checkEnpassant(row,col,team){
+function checkEnpassant(row,col,team,side){
+    // check if square to move into has no friendly pieces
     // if the specified tile contains an enpassant pawn, return true
     
     let tileToCheck = document.getElementsByClassName(row + "x" + col)[0];
+   
     
     // console.log(tileToCheck);
-    
+    var newPos;
     if(tileToCheck != undefined && tileToCheck.hasChildNodes() == true){
         if(team == "white"){
+            if(side == "right"){
+                newPos = document.getElementsByClassName(row - 1 + "x" + col + 1)[0];
+            }
+            else{
+                newPos = document.getElementsByClassName(row - 1 + "x" + col - 1)[0];
+            }
+            var newPosChild = [];
+            if(newPos != undefined){
+                
+                newPosChild = newPos.childNodes;
+            }
+          
             // if there is a piece in the same team, return false
             if(tileToCheck.childNodes[0].classList.contains("whitePiece")){
                 return false;
             }
             else{
                 // if there is a piece in the enemy team, check if its an enpassant piece
-                for(let i = 0; i < enpassantBlackPieces.length; i++){
-
-                    
+                for(let i = 0; i < enpassantBlackPieces.length; i++){                    
                     
                     if(tileToCheck.childNodes[0] == enpassantBlackPieces[i]){
+
+                        if(newPosChild.length > 0){
+                            if(newPos.childNodes[0].classList.contains("whitePiece") == true){
+                            
+                                return false;
+                            }
+                        }
+                        
                         currentEmpassantPiece = enpassantBlackPieces[i];
                         return true;
-                    }
+                        
+                    }                    
                 }
             }
 
@@ -580,13 +824,31 @@ function checkEnpassant(row,col,team){
            
         }
         if(team == "black"){
+            if(side == "right"){
+                newPos = document.getElementsByClassName(row + 1 + "x" + col + 1)[0];
+            }
+            else{
+                newPos = document.getElementsByClassName(row + 1 + "x" + col - 1)[0];
+            }
 
+            var newPosChild = [];
+            if(newPos != undefined){
+                newPosChild = newPos.childNodes;
+            }
+             
             if(tileToCheck.childNodes[0].classList.contains("blackPiece")){
                 return false;
             }
             else{
                 for(let i = 0; i < enpassantWhitePieces.length; i++){
                     if(tileToCheck.childNodes[0] == enpassantWhitePieces[i]){
+
+                        if(newPosChild.length > 0){
+                            if(newPos.childNodes[0].classList.contains("blackPiece") == true){
+                                
+                                return false;
+                            }
+                        }
                         currentEmpassantPiece = enpassantWhitePieces[i];
                         return true;
                     }
@@ -620,6 +882,10 @@ function displayPossibleEmpassant(row,col){
         piece.addClass("possibleEmpassant");
         piece.addClass("possibleMove");
     }
+}
+function displayPawnExchange(row,col){
+    let newTile = document.getElementsByClassName(row + "x" + col)[0];
+    newTile.classList.add("pawnExchange");
 }
 function movePiece(row,col,initialRow){
     // console.log("testing 1");
@@ -663,8 +929,6 @@ function movePiece(row,col,initialRow){
        
 
         if(currentTeam == "black"){
-            console.log(row);
-            console.log(initialRow);
             
             
             if(row - initialRow == 2){
@@ -692,6 +956,79 @@ function movePiece(row,col,initialRow){
         currentTeam = "black";
     }
 }
+function exchangePawn(row,col){
+    selectedPiece.remove();
+    replaceLocationClass(row,col);
+    let newTile = document.getElementsByClassName(row + "x" + col)[0];
+    newTile.appendChild(selectedPiece);
+
+
+    displayExchangeMenu();
+
+}
+function displayExchangeMenu(){
+    
+    $(".exchangeMenu").toggle();
+
+    // toggleEvent Listeners
+    let tiles = document.getElementsByClassName("tile");
+
+    for(let i = 0; i < tiles.length; i++){
+        tiles[i].removeEventListener("click",onTileClick)
+    }
+
+    let pieces = document.getElementsByClassName("chessPiece");
+    for(let i = 0; i < pieces.length; i++){
+        pieces[i].removeEventListener("mousedown",onPieceTouch);
+    }
+}
+function removeExchangeMenu(){
+    $(".exchangeMenu").toggle();
+
+    // toggleEvent Listeners
+    let tiles = document.getElementsByClassName("tile");
+
+    for(let i = 0; i < tiles.length; i++){
+        tiles[i].addEventListener("click",onTileClick)
+    }
+
+    let pieces = document.getElementsByClassName("chessPiece");
+    for(let i = 0; i < pieces.length; i++){
+        pieces[i].addEventListener("mousedown",onPieceTouch);
+    }
+}
+$(".promotion").click(function(){
+    selectedPiece.classList.remove("fa-chess-pawn");
+    if($(this).hasClass("fa-chess-rook")){
+        // replace current piece with rook
+      
+        selectedPiece.classList.add("fa-chess-rook");
+    }
+    if($(this).hasClass("fa-chess-knight")){
+        // replace current piece with rook
+      
+        selectedPiece.classList.add("fa-chess-knight");
+    }
+    if($(this).hasClass("fa-chess-queen")){
+        // replace current piece with rook
+      
+        selectedPiece.classList.add("fa-chess-queen");
+    }
+    if($(this).hasClass("fa-chess-bishop")){
+        // replace current piece with rook
+      
+        selectedPiece.classList.add("fa-chess-bishop");
+    }
+    selectedPiece.classList.remove("promotion");
+    removeExchangeMenu();
+   
+    if(currentTeam == "black"){
+        currentTeam = "white";
+    }
+    else{
+        currentTeam = "black";
+    }
+});
 function replaceLocationClass(row,col){
 
     for(let i = 0; i < 8; i++){
@@ -705,9 +1042,15 @@ function replaceLocationClass(row,col){
     selectedPiece.classList.add(row + "x" + col + "piece");
 
 }
+function checkAttackLines(){
+    // display all the possible attacklines for the current player
+    // if the attacklines intersect with the king's possible moves, remove those possible moves
+    // if the attacklines intersect with the king, check if there are possible moves. If none, it's a checkmate. Otherwise, it's a check.
+}
 function checkCheckmate(){
-
+    // check after each move if it's a checkmate
 }
 function checkCheck(){
-
+    // check after each move if it's a check
+    // 
 }
