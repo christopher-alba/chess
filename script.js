@@ -3,6 +3,7 @@ let blackPieces = 16;
 let currentTeam = "white";
 
 let classCounter = 0;
+let maxClassNumber = 0;
 var selectedPiece;
 var killedPiece;
 var enemyCount;
@@ -1322,9 +1323,19 @@ function checkAttackLines(){
                 // check if attacklines intersect with enemy king
                 if($("." + i + "x" + j).children().length > 0){
                     if($("." + i + "x" + j).children().hasClass("fa-chess-king")){
-
-                        kingTargeted = true;
-                        for(let k = 0; k < 11; k++){
+                        
+                        if(team == "black"){
+                            if($("." + i + "x" + j).children().hasClass("whitePiece")){
+                                kingTargeted = true;
+                            }
+                        }
+                        else{
+                            if($("." + i + "x" + j).children().hasClass("blackPiece")){
+                                kingTargeted = true;
+                            }
+                        }
+                     
+                        for(let k = 0; k < maxClassNumber; k++){
                             if($("." + i + "x" + j).hasClass(k.toString())){
                                 uniqueAttackLine = k.toString();
                                 console.log(uniqueAttackLine);
@@ -1349,12 +1360,12 @@ function checkAttackLines(){
     for(let i = 0; i < 8; i++){
         for(let j = 0; j < 8; j++){
             if($("." + i + "x" + j).hasClass(uniqueAttackLine)){
-                console.log("unique attack line found");
-                console.log(uniqueAttackLine);
+                // console.log("unique attack line found");
+                // console.log(uniqueAttackLine);
                 
                 
                 if($("." + i + "x" + j).hasClass("enemyMove")){
-                    console.log("enemyMove Found");
+                    // console.log("enemyMove Found");
                     enemyCanBlock = true;
                 }
             }
@@ -1562,6 +1573,7 @@ function rookAttackLine(row,col,team){
 
     let uniqueClass = classCounter.toString();
     classCounter++;
+    maxClassNumber++;
     checkCrossAttack(row,col,team,8,uniqueClass);
   
 }
@@ -1625,6 +1637,7 @@ function bishopAttackLine(row,col,team){
     // check ascending diagonal (L->R)
     let uniqueClass = classCounter.toString();
     classCounter++;
+    maxClassNumber++;
     checkDiagonalsAttack(row,col,team,8,uniqueClass);
    
 
@@ -1636,6 +1649,7 @@ function kingAttackLine(row,col,team){
 function queenAttackLine(row,col,team){
     let uniqueClass = classCounter.toString();
     classCounter++;
+    maxClassNumber++;
     checkDiagonalsAttack(row,col,team,8,uniqueClass);
     checkCrossAttack(row,col,team,8,uniqueClass);
 }
@@ -1663,6 +1677,8 @@ function checkDiagonalsAttack(row,col,team,limit,uniqueClass){
     checkCol = col + 1;
     checkRow = row - 1;
     enemyCount = 0;
+    uniqueClass = (parseInt(uniqueClass) + 20).toString()
+    maxClassNumber+= 21;
     for(i = 0; i < limit; i++){
         if(enemyCount < 1){
             if(checkForAlly(checkRow,checkCol,team) == true){
@@ -1688,6 +1704,8 @@ function checkDiagonalsAttack(row,col,team,limit,uniqueClass){
     checkCol = col - 1;
     checkRow = row - 1;
     enemyCount = 0;
+    uniqueClass = (parseInt(uniqueClass) + 20).toString();
+    maxClassNumber+= 21;
     for(i = 0; i < limit; i++){
         if(enemyCount < 1){
             if(checkForAlly(checkRow,checkCol,team) == true){
@@ -1708,6 +1726,8 @@ function checkDiagonalsAttack(row,col,team,limit,uniqueClass){
     checkCol = col + 1;
     checkRow = row + 1;
     enemyCount = 0;
+    uniqueClass = (parseInt(uniqueClass) + 20).toString();
+    maxClassNumber+= 21;
     for(i = 0; i < limit; i++){
         if(enemyCount < 1){
             if(checkForAlly(checkRow,checkCol,team) == true){
@@ -1749,7 +1769,9 @@ function checkCrossAttack(row,col,team,limit,uniqueClass){
             
         }
     }
-   
+    
+    uniqueClass = (parseInt(uniqueClass) + 20).toString();
+    maxClassNumber+= 21;
     if(col > 0){
         enemyCount = 0;
         // check horizontal moves to the left
@@ -1771,7 +1793,8 @@ function checkCrossAttack(row,col,team,limit,uniqueClass){
         
         }
     }
-    
+    uniqueClass = (parseInt(uniqueClass) + 20).toString();
+    maxClassNumber+= 21;
     // check vertical moves above
     if(row > 0){
         enemyCount = 0;
@@ -1794,7 +1817,8 @@ function checkCrossAttack(row,col,team,limit,uniqueClass){
         }
     }
 
-    
+    uniqueClass = (parseInt(uniqueClass) + 20).toString();
+    maxClassNumber+= 21;
     // check vertical moves below
     if(row < 7){
         enemyCount = 0;
@@ -1829,7 +1853,7 @@ function clearUniqueClass(){
     for(let i = 0; i < 8; i++){
         for(let j = 0; j < 8; j++){
 
-            for(let k = 0; k < 10; k++){
+            for(let k = 0; k < maxClassNumber; k++){
                 if($("." + i + "x" + j).hasClass(k.toString())){
                     $("." + i + "x" + j).removeClass(k.toString());
                 }
