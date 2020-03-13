@@ -1129,7 +1129,7 @@ function clearEnemyMoves(){
     for(let i = 0; i < 8; i ++){
         for(let j = 0 ; j < 8; j++){
             if($("." + i + "x" + j).hasClass("enemyMove")){
-
+                $("." + i + "x" + j).removeClass("enemyMove");
             }
         }
     }
@@ -1383,10 +1383,12 @@ function checkAttackLines(){
     // check if any enemymoves intersect with the uniqueAttackLine
     
     // if the number of king's moves equals the number of intersections, check if an attackline intersects the king
-    // console.log(kingTotalMoves);
-    // console.log(blockedMovesCount);
-    // console.log(kingTargeted);
-    // console.log(enemyCanBlock);
+    console.log(kingTotalMoves);
+    console.log(blockedMovesCount);
+    console.log(kingTargeted);
+    console.log(enemyCanBlock);
+    console.log(enemyCanKill);
+    
     
     
     
