@@ -7,14 +7,18 @@ let maxClassNumber = 0;
 var selectedPiece;
 var killedPiece;
 var enemyCount;
-let blockedMoves = [];
-let defendedPieces = [];
+
+
 
 let enpassantBlackPieces = [];
 let enpassantWhitePieces = [];
 var currentEmpassantPiece;
 let performingEmpassant = false;
 
+let checkAttackLine = [];
+let blockedMoves = [];
+let defendedPieces = [];
+let currentlyInCheck = false;
 //if piece has an enpassant piece next to it, then display enpassant move
 
 
@@ -293,7 +297,14 @@ let initpieces = document.getElementsByClassName("chessPiece");
 for(let i = 0; i < initpieces.length; i++){
     initpieces[i].addEventListener("mousedown",onPieceTouch);
 }
-
+function checkIfValid(row,col){
+    for(let i = 0; i < checkAttackLine.length; i++){
+        if(row == checkAttackLine[i][0] && col == checkAttackLine[i][1] ){
+            return true;
+        }
+    }
+    return false;
+}
 function pawnMoves(row,col,team){
     // if black pawn, check tiles below
     var checkRow;
@@ -310,7 +321,9 @@ function pawnMoves(row,col,team){
                 
                 if(checkTile(checkRow,checkCol,team,"pawnMove") == true){
                    
-                    displayPossibleMove(checkRow,checkCol);
+                        displayPossibleMove(checkRow,checkCol);
+                    
+                    
                     // console.log("you can move here");
                     
                 }
@@ -929,12 +942,25 @@ function checkEnpassant(row,col,team,side){
 }
 function displayPossibleMove(row,col){
 
-    $("." + row + "x" + col).addClass("possibleMove");
+    if(currentlyInCheck == true){
+        if(checkIfValid(row,col) == true){
+            $("." + row + "x" + col).addClass("possibleMove");
 
-    let piece =   $("." + row + "x" + col + "piece");
-    if(piece != undefined){
-        piece.addClass("possibleMove");
+            let piece =   $("." + row + "x" + col + "piece");
+            if(piece != undefined){
+                piece.addClass("possibleMove");
+            }
+        }
     }
+    else{
+        $("." + row + "x" + col).addClass("possibleMove");
+
+        let piece =   $("." + row + "x" + col + "piece");
+        if(piece != undefined){
+            piece.addClass("possibleMove");
+        }
+    }
+   
 
 }
 function displayPossibleEmpassant(row,col){
@@ -1311,6 +1337,7 @@ function checkAttackLines(){
     let enemyCanBlock = false;
     let enemyCanKill = false;
     var uniqueAttackLine;
+    currentlyInCheck = false;
     for(let i = 0; i < 8; i++){
         for(let j = 0; j < 8; j++){
 
@@ -1329,18 +1356,20 @@ function checkAttackLines(){
                         if(team == "black"){
                             if($("." + i + "x" + j).children().hasClass("whitePiece")){
                                 kingTargeted = true;
+                                currentlyInCheck = true;
                             }
                         }
                         else{
                             if($("." + i + "x" + j).children().hasClass("blackPiece")){
                                 kingTargeted = true;
+                                currentlyInCheck = true;
                             }
                         }
                      
                         for(let k = 0; k < maxClassNumber; k++){
                             if($("." + i + "x" + j).hasClass(k.toString())){
                                 uniqueAttackLine = k.toString();
-                                console.log(uniqueAttackLine);
+                                // console.log(uniqueAttackLine);
                                 
                             }
                         }
@@ -1380,14 +1409,23 @@ function checkAttackLines(){
         }
     }
 
-    // check if any enemymoves intersect with the uniqueAttackLine
+
+//  store all the co-ordinates for the uniqueAttackLine in a global array so the enemy's moves can only be ones that are in the array.
+    checkAttackLine = [];
+    for(let i = 0; i < 8; i++){
+        for(let j = 0; j < 8; j++){
+            if($("." + i + "x" + j).hasClass(uniqueAttackLine)){
+                checkAttackLine.push([i,j]);
+            }
+        }
+    }
     
-    // if the number of king's moves equals the number of intersections, check if an attackline intersects the king
-    console.log(kingTotalMoves);
-    console.log(blockedMovesCount);
-    console.log(kingTargeted);
-    console.log(enemyCanBlock);
-    console.log(enemyCanKill);
+ 
+    // console.log(kingTotalMoves);
+    // console.log(blockedMovesCount);
+    // console.log(kingTargeted);
+    // console.log(enemyCanBlock);
+    // console.log(enemyCanKill);
     
     
     
@@ -1499,6 +1537,12 @@ function pawnAttackLine(row,col,team){
     // if black pawn, check tiles below
     var checkRow;
     var checkCol;
+    let uniqueClass = classCounter.toString();
+            classCounter++;
+            maxClassNumber++;
+           
+            displayUniqueClass(row,col,uniqueClass);
+            
     if(team == "black"){
         checkCol = col;
         checkRow = row + 1;
@@ -1525,17 +1569,13 @@ function pawnAttackLine(row,col,team){
             // console.log("testing 1");
             
             displayAttackLine(checkRow,checkCol - 1);
+            displayUniqueClass(checkRow,checkCol - 1,uniqueClass);
         
        
             // console.log("testing 2");
             displayAttackLine(checkRow,checkCol + 1);
-        
-        if(  checkEnpassant(row, col + 1, team) == true){
-            displayAttackLine(checkRow,checkCol + 1);
-        }
-        if(  checkEnpassant(row, col -1 , team) == true){
-            displayAttackLine(checkRow,checkCol - 1);
-        }
+            displayUniqueClass(checkRow,checkCol + 1,uniqueClass);
+      
       
         
         // check diagonals
@@ -1567,18 +1607,13 @@ function pawnAttackLine(row,col,team){
             // console.log("testing 1");
             
             displayAttackLine(checkRow,checkCol - 1);
-        
+            displayUniqueClass(checkRow,checkCol - 1,uniqueClass);
        
             // console.log("testing 2");
             displayAttackLine(checkRow,checkCol + 1);
+            displayUniqueClass(checkRow,checkCol + 1,uniqueClass);
         
         
-        if( checkEnpassant(row, col - 1, team) == true){
-            displayAttackLine(checkRow,checkCol - 1);
-        }
-        if(checkEnpassant(row, col + 1, team) == true){
-            displayAttackLine(checkRow,checkCol + 1);
-        }
     }
 
 }
@@ -1592,10 +1627,15 @@ function rookAttackLine(row,col,team){
 }
 function knightAttackLine(row,col,team){
 
-
+ 
+    let uniqueClass = classCounter.toString();
+    classCounter++;
+    maxClassNumber++;
+    
      // if the tile being checked contains an ally, save the position of the tile
     if(checkForAlly(row - 2,col - 1,team) == true){
         defendedPieces.push([row - 2, col -1]);
+        
     }
     if(checkForAlly(row - 2,col + 1,team) == true){
         defendedPieces.push([row - 2, col + 1]);
@@ -1622,27 +1662,74 @@ function knightAttackLine(row,col,team){
 
     if(checkTile(row - 2,col - 1, team,"knight") == true){
         displayAttackLine(row - 2,col - 1);
+        displayUniqueClass(row - 2,col - 1,uniqueClass);
+        displayUniqueClass(row,col,uniqueClass);
+        
+        classCounter+=1;
+        maxClassNumber+=1;
     }
     if(checkTile(row - 2,col + 1, team,"knight") == true){
         displayAttackLine(row - 2,col + 1);
+        uniqueClass = classCounter.toString();
+        displayUniqueClass(row - 2,col + 1,uniqueClass);
+        displayUniqueClass(row,col,uniqueClass);
+        
+        classCounter+=1;
+        maxClassNumber+=1;
     }
     if(checkTile(row - 1,col - 2, team,"knight") == true){
         displayAttackLine(row - 1,col - 2);
+        uniqueClass = classCounter.toString();
+        displayUniqueClass(row - 1,col - 2,uniqueClass);
+        displayUniqueClass(row,col,uniqueClass);
+        
+        classCounter+=1;
+        maxClassNumber+=1;
     }
     if(checkTile(row - 1,col + 2, team,"knight") == true){
         displayAttackLine(row - 1,col + 2);
+        uniqueClass = classCounter.toString();
+        displayUniqueClass(row - 1,col + 2,uniqueClass);
+        displayUniqueClass(row,col,uniqueClass);
+        
+        classCounter+=1;
+        maxClassNumber+=1;
     }
     if(checkTile(row + 2,col - 1, team,"knight") == true){
         displayAttackLine(row + 2,col - 1);
+        uniqueClass = classCounter.toString();
+        displayUniqueClass(row + 2,col - 1,uniqueClass);
+        displayUniqueClass(row,col,uniqueClass);
+      
+        classCounter+=1;
+        maxClassNumber+=1;
     }
     if(checkTile(row + 2,col + 1, team,"knight") == true){
         displayAttackLine(row + 2,col + 1);
+        uniqueClass = classCounter.toString();
+        displayUniqueClass(row + 2,col + 1,uniqueClass);
+        displayUniqueClass(row,col,uniqueClass);
+        
+        classCounter+=1;
+        maxClassNumber+=1;
     }
     if(checkTile(row + 1,col - 2, team,"knight") == true){
         displayAttackLine(row + 1,col - 2);
+        uniqueClass = classCounter.toString();
+        displayUniqueClass(row + 1,col - 2,uniqueClass);
+        displayUniqueClass(row,col,uniqueClass);
+   
+        classCounter+=1;
+        maxClassNumber+=1;
     }
     if(checkTile(row + 1,col + 2, team,"knight") == true){
         displayAttackLine(row + 1,col + 2);
+        uniqueClass = classCounter.toString();
+        displayUniqueClass(row + 1,col + 2,uniqueClass);
+        displayUniqueClass(row,col,uniqueClass);
+        
+        classCounter+=1;
+        maxClassNumber+=1;
     }
    
 }
