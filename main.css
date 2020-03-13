@@ -64,6 +64,9 @@
 .possibleMove , .possibleEmpassant, .pawnExchange{
     box-shadow:inset 0px 0px 3px 3px yellow;
 }
+.selectedPiece {
+    box-shadow:inset 0px 0px 3px 3px greenyellow;
+}
 .possibleMove.chessPiece {
     box-shadow:none;
 }
