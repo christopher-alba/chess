@@ -49,11 +49,11 @@ function initBoard(){
 
 
 
-            nextTile = "black";
+            nextTile = "white";
           
         }
         else{
-            nextTile = "white";
+            nextTile = "black";
         
         }
 
