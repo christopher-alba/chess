@@ -1166,6 +1166,7 @@ function enemyMoves(){
             
             if(pieces[i].classList.contains("fa-chess-pawn")){
                 pawnEnemyMove(row,col,team);
+                
                 // console.log("testing attack lines B");
                 
             }
@@ -1308,6 +1309,7 @@ function checkAttackLines(){
     let kingTotalMoves = 0;
     let kingTargeted = false;
     let enemyCanBlock = false;
+    let enemyCanKill = false;
     var uniqueAttackLine;
     for(let i = 0; i < 8; i++){
         for(let j = 0; j < 8; j++){
@@ -1344,7 +1346,7 @@ function checkAttackLines(){
                         }
                     }
                 }
-              
+                
              
             }
             // count the number of total moves the enemy can make without accounting for blocked moves
@@ -1353,12 +1355,6 @@ function checkAttackLines(){
                 kingTotalMoves++;
 
             }
-        }
-    }
-
-    // check if any enemymoves intersect with the uniqueAttackLine
-    for(let i = 0; i < 8; i++){
-        for(let j = 0; j < 8; j++){
             if($("." + i + "x" + j).hasClass(uniqueAttackLine)){
                 // console.log("unique attack line found");
                 // console.log(uniqueAttackLine);
@@ -1369,8 +1365,23 @@ function checkAttackLines(){
                     enemyCanBlock = true;
                 }
             }
+            // console.log($("." + i + "x" + j).children());
+            // console.log(selectedPiece);
+            
+            
+            if($("." + i + "x" + j).children()[0] == selectedPiece){
+                console.log("selected Piece Found");
+                
+                if($("." + i + "x" + j).hasClass("enemyMove")){
+                    enemyCanKill = true;
+                }
+            }
+          
         }
     }
+
+    // check if any enemymoves intersect with the uniqueAttackLine
+    
     // if the number of king's moves equals the number of intersections, check if an attackline intersects the king
     // console.log(kingTotalMoves);
     // console.log(blockedMovesCount);
@@ -1380,7 +1391,7 @@ function checkAttackLines(){
     
     
     
-    if(kingTotalMoves === blockedMovesCount && kingTargeted == true && enemyCanBlock == false){
+    if(kingTotalMoves === blockedMovesCount && kingTargeted == true && enemyCanBlock == false && enemyCanKill == false){
         // check if any of the enemyteam's pieces intersect with the attacklines that target the king
         
         setTimeout(function(){
