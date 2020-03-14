@@ -1407,16 +1407,7 @@ function checkAttackLines() {
                 kingTotalMoves++;
 
             }
-            if ($("." + i + "x" + j).hasClass(uniqueAttackLine)) {
-                // console.log("unique attack line found");
-                // console.log(uniqueAttackLine);
-
-
-                if ($("." + i + "x" + j).hasClass("enemyMove")) {
-                    // console.log("enemyMove Found");
-                    enemyCanBlock = true;
-                }
-            }
+            
             // console.log($("." + i + "x" + j).children());
             // console.log(selectedPiece);
 
@@ -1432,6 +1423,20 @@ function checkAttackLines() {
         }
     }
 
+    for(let i = 0 ; i < 8; i++){
+        for(j = 0; j < 8; j++){
+            if ($("." + i + "x" + j).hasClass(uniqueAttackLine)) {
+                // console.log("unique attack line found");
+                console.log(uniqueAttackLine);
+
+
+                if ($("." + i + "x" + j).hasClass("enemyMove")) {
+                    console.log("enemyMove Found");
+                    enemyCanBlock = true;
+                }
+            }
+        }
+    }
 
     //  store all the co-ordinates for the uniqueAttackLine in a global array so the enemy's moves can only be ones that are in the array.
     checkAttackLine = [];
