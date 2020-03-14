@@ -2,14 +2,14 @@ let whitePieces = 16;
 let blackPieces = 16;
 let currentTeam = "white";
 
-let classCounter = 0;
-let maxClassNumber = 0;
+
 var selectedPiece;
 var killedPiece;
 var enemyCount;
 
 
-
+let classCounter = 0;
+let maxClassNumber = 0;
 let enpassantBlackPieces = [];
 let enpassantWhitePieces = [];
 var currentEmpassantPiece;
@@ -1070,14 +1070,19 @@ function movePiece(row, col, initialRow) {
     clearAttackLines();
     checkAttackLines();
     clearMoves();
-
+    changeTeams();
+    
+}
+function changeTeams(){
     if (currentTeam == "black") {
         // console.log("changing teams");
 
         currentTeam = "white";
+        $(".currentTurn h1").text("White's Turn!")
     }
     else {
         currentTeam = "black";
+        $(".currentTurn h1").text("Black's Turn!")
     }
 }
 function exchangePawn(row, col) {
@@ -1150,12 +1155,7 @@ $(".promotion").click(function () {
     clearAttackLines();
     checkAttackLines();
 
-    if (currentTeam == "black") {
-        currentTeam = "white";
-    }
-    else {
-        currentTeam = "black";
-    }
+    changeTeams();
 
 });
 function replaceLocationClass(row, col) {
@@ -1539,6 +1539,17 @@ function resetBoard(){
     clearKingLine();
     clearUniqueClass();
     initPieces();
+    classCounter = 0;
+    maxClassNumber = 0;
+    enpassantBlackPieces = [];
+    enpassantWhitePieces = [];
+    currentEmpassantPiece;
+    performingEmpassant = false;
+
+    checkAttackLine = [];
+    blockedMoves = [];
+    defendedPieces = [];
+    currentlyInCheck = false;
     currentTeam = "white";
     let tiles = document.getElementsByClassName("tile");
 

@@ -15,8 +15,8 @@ body{
     margin-top:60px;
 }
 .mainTitle{
-    margin-top:100px;
-    margin-bottom:100px;
+    margin-top:0px;
+    margin-bottom:80px;
     
 }
 .mainTitle h1{
@@ -108,4 +108,7 @@ body{
 }
 .checkmate{
     background:red;
+}
+.reset{
+    margin-top:30px;
 }
