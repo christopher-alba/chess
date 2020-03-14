@@ -34,6 +34,19 @@ body{
     position:relative;
     overflow:hidden;
 }
+.checkStatus{
+    display:none;
+    z-index: 1;
+    width:100%;
+    text-align:center;
+    height:auto;
+    padding:20px;
+    background:rgba(255, 0, 0, 0.671);
+    font-size:2rem;
+    position:absolute;
+    top:40%;
+    color:white;
+}
 .exchangeMenu{
     z-index:1;
     display:none;
@@ -89,4 +102,10 @@ body{
 }
 .possibleMove.chessPiece {
     box-shadow:none;
+}
+.check{
+    box-shadow:inset 0px 0px 3px 3px rgb(255, 30, 0);
+}
+.checkmate{
+    background:red;
 }

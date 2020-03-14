@@ -1034,6 +1034,14 @@ function movePiece(row, col, initialRow) {
     newTile.innerHTML = "";
 
     newTile.appendChild(selectedPiece);
+    // remove check square
+    for(let i = 0; i < 8; i++){
+        for(let j = 0; j < 8; j++){
+            if($("." + i + "x" + j).hasClass("check")){
+                $("." + i + "x" + j).removeClass("check");
+            }
+        }
+    }
 
     if (selectedPiece.classList.contains("fa-chess-pawn")) {
         // get the row of selectedPiece
@@ -1368,12 +1376,14 @@ function checkAttackLines() {
 
                         if (team == "black") {
                             if ($("." + i + "x" + j).children().hasClass("whitePiece")) {
+                                $("." + i + "x" + j).addClass("check");
                                 kingTargeted = true;
                                 currentlyInCheck = true;
                             }
                         }
                         else {
                             if ($("." + i + "x" + j).children().hasClass("blackPiece")) {
+                                $("." + i + "x" + j).addClass("check");
                                 kingTargeted = true;
                                 currentlyInCheck = true;
                             }
@@ -1460,14 +1470,88 @@ function checkAttackLines() {
     // if the attacklines intersect with the king, check if there are possible moves. If yes, it's a check. If none, check if ally lines block enemylines. If none, it's checkmate .Otherwise, it's a check.
 }
 function checkmate(team) {
-    alert(team + " checkmate!");
+    
+    
+    let tiles = document.getElementsByClassName("tile");
+
+    for (let i = 0; i < tiles.length; i++) {
+        tiles[i].removeEventListener("click", onTileClick)
+    }
+
+    let pieces = document.getElementsByClassName("chessPiece");
+    for (let i = 0; i < pieces.length; i++) {
+        pieces[i].removeEventListener("mousedown", onPieceTouch);
+    }
+    // locate check square and convert to a checkmate square
+    for(let i = 0; i < 8; i++){
+        for(let j = 0; j < 8; j++){
+            if($("." + i + "x" + j).hasClass("check")){
+                $("." + i + "x" + j).addClass("checkmate");
+            }
+        }
+    }
+    var winner;
+    if(team == "white"){
+        winner = "black";
+    }
+    else{
+        winner = "white";
+    }
+    $(".checkStatus").toggle();
+    $(".checkStatus").text(team.toUpperCase() + " checkmate. " + winner.toUpperCase() + " wins!");
+    $(".currentTurn h1").text(team.toUpperCase() + " checkmate. " + winner.toUpperCase() + " wins!");
+    setTimeout(function(){
+        $(".checkStatus").fadeOut();
+    }, 3000);
     // remove all event listeners, display win message
 }
 function check(team) {
 
     // display check message
-    alert(team + " check!");
+   
+    $(".checkStatus").toggle();
+    $(".checkStatus").text(team.toUpperCase() + " in check!");
+    setTimeout(function(){
+        $(".checkStatus").fadeOut();
+    }, 1000);
     // for all pieces, but the king and those with attacklines that intercept all possible checks, remove their event listeners
+}
+$(".reset").click(resetBoard);
+function resetBoard(){
+    
+
+    for(let i = 0; i < 8; i++){
+        for(let j = 0; j < 8; j++){
+            if($("." + i + "x" + j).hasClass("check")){
+                $("." + i + "x" + j).removeClass("check");
+            }
+            if($("." + i + "x" + j).hasClass("checkmate")){
+                $("." + i + "x" + j).removeClass("checkmate");
+            }
+            if($("." + i + "x" + j).children().length > 0){
+                $("." + i + "x" + j).children()[0].remove();
+            }
+        }
+    }
+    clearMoves();
+    clearAttackLines();
+    clearEnemyMoves();
+    clearKingLine();
+    clearUniqueClass();
+    initPieces();
+    currentTeam = "white";
+    let tiles = document.getElementsByClassName("tile");
+
+    for (let i = 0; i < tiles.length; i++) {
+        tiles[i].addEventListener("click", onTileClick)
+    }
+
+    let pieces = document.getElementsByClassName("chessPiece");
+    for (let i = 0; i < pieces.length; i++) {
+        pieces[i].addEventListener("mousedown", onPieceTouch);
+    }
+    
+    
 }
 function enemyKingMoves(row, col, team) {
     checkKingCross(row, col, team, 1);
