@@ -1538,6 +1538,7 @@ function resetBoard(){
             }
         }
     }
+    $(".currentTurn h1").text("White's move!")
     clearMoves();
     clearAttackLines();
     clearEnemyMoves();
