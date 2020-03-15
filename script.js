@@ -17,6 +17,11 @@ let enpassantWhitePieces = [];
 var currentEmpassantPiece;
 let performingEmpassant = false;
 
+var blockingPiece = {
+    piece: undefined,
+    possibleMoves: []
+}
+let currentlyBlocking = false;
 let checkAttackLine = [];
 let blockedMoves = [];
 let defendedPieces = [];
@@ -201,6 +206,7 @@ function onPieceTouch() {
     // if has the class possibleMove , execute the move
     if ($(this).hasClass("possibleMove")) {
 
+
         if ($(this).hasClass("possibleEmpassant")) {
             performingEmpassant = true;
         }
@@ -323,7 +329,7 @@ function pawnMoves(row, col, team) {
 
                 if (checkTile(checkRow, checkCol, team, "pawnMove") == true) {
 
-                    displayPossibleMove(checkRow, checkCol);
+                    displayPossibleMove(checkRow, checkCol, "pawn",[row,col]);
 
 
                     // console.log("you can move here");
@@ -341,14 +347,14 @@ function pawnMoves(row, col, team) {
             // check one tile ahead
             if (row == 6) {
                 if (checkTile(checkRow, checkCol, team, "pawnMove") == true) {
-                    displayPawnExchange(checkRow, checkCol);
+                    displayPawnExchange(checkRow, checkCol,[row,col]);
 
                 }
             }
             else {
                 if (checkTile(checkRow, checkCol, team, "pawnMove") == true) {
 
-                    displayPossibleMove(checkRow, checkCol);
+                    displayPossibleMove(checkRow, checkCol,"pawn",[row,col]);
                     // console.log("you can move here");
 
                 }
@@ -362,17 +368,17 @@ function pawnMoves(row, col, team) {
         if (checkTile(checkRow, checkCol - 1, team, "pawnAttack") == true) {
             // console.log("testing 1");
 
-            displayPossibleMove(checkRow, checkCol - 1);
+            displayPossibleMove(checkRow, checkCol - 1,[row,col]);
         }
         if (checkTile(checkRow, checkCol + 1, team, "pawnAttack") == true) {
             // console.log("testing 2");
-            displayPossibleMove(checkRow, checkCol + 1);
+            displayPossibleMove(checkRow, checkCol + 1,[row,col]);
         }
-        if (checkEnpassant(row, col + 1, team) == true) {
-            displayPossibleEmpassant(checkRow, checkCol + 1, "right");
+        if (checkEnpassant(row, col + 1, team,"right") == true) {
+            displayPossibleEmpassant(checkRow, checkCol + 1,[row,col]);
         }
-        if (checkEnpassant(row, col - 1, team) == true) {
-            displayPossibleEmpassant(checkRow, checkCol - 1, "left");
+        if (checkEnpassant(row, col - 1, team,"left") == true) {
+            displayPossibleEmpassant(checkRow, checkCol - 1,[row,col]);
         }
 
 
@@ -392,7 +398,7 @@ function pawnMoves(row, col, team) {
 
                 if (checkTile(checkRow, checkCol, team, "pawnMove") == true) {
 
-                    displayPossibleMove(checkRow, checkCol);
+                    displayPossibleMove(checkRow, checkCol,"pawn",[row,col]);
                     // console.log("you can move here");
 
                 }
@@ -409,7 +415,7 @@ function pawnMoves(row, col, team) {
             if (row == 1) {
                 if (checkTile(checkRow, checkCol, team, "pawnMove") == true) {
 
-                    displayPawnExchange(checkRow, checkCol);
+                    displayPawnExchange(checkRow, checkCol,[row,col]);
 
 
                 }
@@ -417,7 +423,7 @@ function pawnMoves(row, col, team) {
             else {
                 if (checkTile(checkRow, checkCol, team, "pawnMove") == true) {
 
-                    displayPossibleMove(checkRow, checkCol);
+                    displayPossibleMove(checkRow, checkCol,"pawn",[row,col]);
                     // console.log("you can move here");
 
                 }
@@ -429,18 +435,18 @@ function pawnMoves(row, col, team) {
         if (checkTile(checkRow, checkCol - 1, team, "pawnAttack") == true) {
             // console.log("testing 1");
 
-            displayPossibleMove(checkRow, checkCol - 1);
+            displayPossibleMove(checkRow, checkCol - 1,"pawn",[row,col]);
         }
         if (checkTile(checkRow, checkCol + 1, team, "pawnAttack") == true) {
             // console.log("testing 2");
-            displayPossibleMove(checkRow, checkCol + 1);
+            displayPossibleMove(checkRow, checkCol + 1,"pawn",[row,col]);
         }
 
         if (checkEnpassant(row, col - 1, team, "left") == true) {
-            displayPossibleEmpassant(checkRow, checkCol - 1);
+            displayPossibleEmpassant(checkRow, checkCol - 1,[row,col]);
         }
         if (checkEnpassant(row, col + 1, team, "right") == true) {
-            displayPossibleEmpassant(checkRow, checkCol + 1);
+            displayPossibleEmpassant(checkRow, checkCol + 1,[row,col]);
         }
     }
 
@@ -452,28 +458,28 @@ function rookMoves(row, col, team) {
 }
 function knightMoves(row, col, team) {
     if (checkTile(row - 2, col - 1, team, "knight") == true) {
-        displayPossibleMove(row - 2, col - 1);
+        displayPossibleMove(row - 2, col - 1,"knight",[row,col]);
     }
     if (checkTile(row - 2, col + 1, team, "knight") == true) {
-        displayPossibleMove(row - 2, col + 1);
+        displayPossibleMove(row - 2, col + 1,"knight",[row,col]);
     }
     if (checkTile(row - 1, col - 2, team, "knight") == true) {
-        displayPossibleMove(row - 1, col - 2);
+        displayPossibleMove(row - 1, col - 2,"knight",[row,col]);
     }
     if (checkTile(row - 1, col + 2, team, "knight") == true) {
-        displayPossibleMove(row - 1, col + 2);
+        displayPossibleMove(row - 1, col + 2,"knight",[row,col]);
     }
     if (checkTile(row + 2, col - 1, team, "knight") == true) {
-        displayPossibleMove(row + 2, col - 1);
+        displayPossibleMove(row + 2, col - 1,"knight",[row,col]);
     }
     if (checkTile(row + 2, col + 1, team, "knight") == true) {
-        displayPossibleMove(row + 2, col + 1);
+        displayPossibleMove(row + 2, col + 1,"knight",[row,col]);
     }
     if (checkTile(row + 1, col - 2, team, "knight") == true) {
-        displayPossibleMove(row + 1, col - 2);
+        displayPossibleMove(row + 1, col - 2,"knight",[row,col]);
     }
     if (checkTile(row + 1, col + 2, team, "knight") == true) {
-        displayPossibleMove(row + 1, col + 2);
+        displayPossibleMove(row + 1, col + 2,"knight",[row,col]);
     }
 
 }
@@ -502,7 +508,7 @@ function checkDiagonals(row, col, team, limit, king) {
     for (i = 0; i < limit; i++) {
         if (enemyCount < 1) {
             if (checkTile(checkRow, checkCol, team, type) == true) {
-                displayPossibleMove(checkRow, checkCol, type);
+                displayPossibleMove(checkRow, checkCol, type,[row,col]);
                 checkCol--;
                 checkRow++;
             }
@@ -517,7 +523,7 @@ function checkDiagonals(row, col, team, limit, king) {
     for (i = 0; i < limit; i++) {
         if (enemyCount < 1) {
             if (checkTile(checkRow, checkCol, team, type) == true) {
-                displayPossibleMove(checkRow, checkCol, type);
+                displayPossibleMove(checkRow, checkCol, type,[row,col]);
                 checkCol++;
                 checkRow--;
             }
@@ -538,7 +544,7 @@ function checkDiagonals(row, col, team, limit, king) {
     for (i = 0; i < limit; i++) {
         if (enemyCount < 1) {
             if (checkTile(checkRow, checkCol, team, type) == true) {
-                displayPossibleMove(checkRow, checkCol, type);
+                displayPossibleMove(checkRow, checkCol, type,[row,col]);
                 checkCol--;
                 checkRow--;
             }
@@ -554,7 +560,7 @@ function checkDiagonals(row, col, team, limit, king) {
     for (i = 0; i < limit; i++) {
         if (enemyCount < 1) {
             if (checkTile(checkRow, checkCol, team, type) == true) {
-                displayPossibleMove(checkRow, checkCol, type);
+                displayPossibleMove(checkRow, checkCol, type,[row,col]);
                 checkCol++;
                 checkRow++;
             }
@@ -578,7 +584,7 @@ function checkCross(row, col, team, limit, king) {
         for (let i = 0; i < limit; i++) {
             if (enemyCount < 1) {
                 if (checkTile(row, checkCol, team, type) == true) {
-                    displayPossibleMove(row, checkCol, type);
+                    displayPossibleMove(row, checkCol, type,[row,col]);
                     checkCol++;
                 }
                 else {
@@ -596,7 +602,7 @@ function checkCross(row, col, team, limit, king) {
         for (let i = 0; i < limit; i++) {
             if (enemyCount < 1) {
                 if (checkTile(row, checkCol, team, type) == true) {
-                    displayPossibleMove(row, checkCol, type);
+                    displayPossibleMove(row, checkCol, type,[row,col]);
                     checkCol--;
                 }
                 else {
@@ -614,7 +620,7 @@ function checkCross(row, col, team, limit, king) {
         for (let i = 0; i < limit; i++) {
             if (enemyCount < 1) {
                 if (checkTile(checkRow, col, team, type) == true) {
-                    displayPossibleMove(checkRow, col, type);
+                    displayPossibleMove(checkRow, col, type,[row,col]);
                     checkRow--;
                 }
                 else {
@@ -633,7 +639,7 @@ function checkCross(row, col, team, limit, king) {
         for (let i = 0; i < limit; i++) {
             if (enemyCount < 1) {
                 if (checkTile(checkRow, col, team, type) == true) {
-                    displayPossibleMove(checkRow, col, type);
+                    displayPossibleMove(checkRow, col, type,[row,col]);
                     checkRow++;
                 }
                 else {
@@ -770,7 +776,7 @@ function checkTile(row, col, team, piece) {
         }
         else {
 
-            if(tileChild.hasClass("fa-chess-king")){
+            if (tileChild.hasClass("fa-chess-king")) {
                 kingFound = true;
             }
             if (team == "black") {
@@ -944,30 +950,55 @@ function checkEnpassant(row, col, team, side) {
 
     return false;
 }
-function displayPossibleMove(row, col, type) {
+function displayPossibleMove(row, col, type,origin) {
 
-    
+
     if (currentlyInCheck == true) {
-        if(type == "king"){
+        if (type == "king") {
             $("." + row + "x" + col).addClass("possibleMove");
-    
+
             let piece = $("." + row + "x" + col + "piece");
             if (piece != undefined) {
                 piece.addClass("possibleMove");
             }
         }
-        else{
-            
+        else {
+
             if (checkIfValid(row, col) == true) {
                 $("." + row + "x" + col).addClass("possibleMove");
-    
+
                 let piece = $("." + row + "x" + col + "piece");
                 if (piece != undefined) {
                     piece.addClass("possibleMove");
                 }
             }
         }
-       
+
+    }
+    else if(currentlyBlocking == true){
+        // check to see if origin matches blocking piece's co-ordinates
+        console.log(blockingPiece);
+        
+        if(origin[0] == blockingPiece.piece[0] && origin[1] == blockingPiece.piece[1]){
+            for(let i = 0; i < blockingPiece.possibleMoves.length;i++){
+                if(row == blockingPiece.possibleMoves[i][0] && col == blockingPiece.possibleMoves[i][1]){
+                    $("." + row + "x" + col).addClass("possibleMove");
+
+                    let piece = $("." + row + "x" + col + "piece");
+                    if (piece != undefined) {
+                        piece.addClass("possibleMove");
+                    }
+                }
+            }
+        }
+        else{
+            $("." + row + "x" + col).addClass("possibleMove");
+
+            let piece = $("." + row + "x" + col + "piece");
+            if (piece != undefined) {
+                piece.addClass("possibleMove");
+            }
+        }
     }
     else {
         $("." + row + "x" + col).addClass("possibleMove");
@@ -980,33 +1011,78 @@ function displayPossibleMove(row, col, type) {
 
 
 }
-function displayPossibleEmpassant(row, col) {
+function displayPossibleEmpassant(row, col,origin) {
 
+    if(currentlyBlocking == true){
+        if(origin[0] == blockingPiece.piece[0] && origin[1] == blockingPiece.piece[1]){
+            for(let i = 0; i < blockingPiece.possibleMoves.length;i++){
+                if(row == blockingPiece.possibleMoves[i][0] && col == blockingPiece.possibleMoves[i][1]){
+                    $("." + row + "x" + col).addClass("possibleMove");
+                    $("." + row + "x" + col).addClass("possibleEmpassant");
 
-    $("." + row + "x" + col).addClass("possibleMove");
-    $("." + row + "x" + col).addClass("possibleEmpassant");
+                    let piece = $("." + row + "x" + col + "piece");
+                    if (piece != undefined) {
+                        piece.addClass("possibleEmpassant");
+                        piece.addClass("possibleMove");
+                    }
+                }
+            }
+        }
+        else{
+            $("." + row + "x" + col).addClass("possibleMove");
+                    $("." + row + "x" + col).addClass("possibleEmpassant");
 
-    let piece = $("." + row + "x" + col + "piece");
-    if (piece != undefined) {
-        piece.addClass("possibleEmpassant");
-        piece.addClass("possibleMove");
+                    let piece = $("." + row + "x" + col + "piece");
+                    if (piece != undefined) {
+                        piece.addClass("possibleEmpassant");
+                        piece.addClass("possibleMove");
+                    } 
+        }
     }
+    else{
+        $("." + row + "x" + col).addClass("possibleMove");
+        $("." + row + "x" + col).addClass("possibleEmpassant");
+    
+        let piece = $("." + row + "x" + col + "piece");
+        if (piece != undefined) {
+            piece.addClass("possibleEmpassant");
+            piece.addClass("possibleMove");
+        }
+    }
+   
 }
-function displayPawnExchange(row, col) {
-    let newTile = document.getElementsByClassName(row + "x" + col)[0];
-    newTile.classList.add("pawnExchange");
+function displayPawnExchange(row, col,origin) {
+    if(currentlyBlocking == true){
+        if(origin[0] == blockingPiece.piece[0] && origin[1] == blockingPiece.piece[1]){
+            for(let i = 0; i < blockingPiece.possibleMoves.length;i++){
+                if(row == blockingPiece.possibleMoves[i][0] && col == blockingPiece.possibleMoves[i][1]){
+                    let newTile = document.getElementsByClassName(row + "x" + col)[0];
+                     newTile.classList.add("pawnExchange");
+                }
+            }
+        }
+        else{
+            let newTile = document.getElementsByClassName(row + "x" + col)[0];
+            newTile.classList.add("pawnExchange");
+        }
+    }
+    else{
+        let newTile = document.getElementsByClassName(row + "x" + col)[0];
+        newTile.classList.add("pawnExchange");
+    }
+    
 }
 function movePiece(row, col, initialRow) {
     // console.log("testing 1");
     // console.log(row);
     // console.log(col);
-    if(selectedPiece.classList.contains("fa-chess-pawn") == false){
+    if (selectedPiece.classList.contains("fa-chess-pawn") == false) {
         drawCounter++;
     }
-    else{
+    else {
         drawCounter = 0;
     }
-    
+
     for (let i = 0; i < enpassantBlackPieces.length; i++) {
         enpassantBlackPieces[i].counter++;
         if (enpassantBlackPieces[i].piece == selectedPiece || enpassantBlackPieces[i].counter == 1) {
@@ -1018,7 +1094,7 @@ function movePiece(row, col, initialRow) {
     for (let i = 0; i < enpassantWhitePieces.length; i++) {
         enpassantWhitePieces[i].counter++;
         if (enpassantWhitePieces[i].piece == selectedPiece || enpassantWhitePieces[i].counter == 1) {
-           
+
             enpassantWhitePieces.splice(i, 1);
             console.log(enpassantWhitePieces);
 
@@ -1049,9 +1125,9 @@ function movePiece(row, col, initialRow) {
 
     newTile.appendChild(selectedPiece);
     // remove check square
-    for(let i = 0; i < 8; i++){
-        for(let j = 0; j < 8; j++){
-            if($("." + i + "x" + j).hasClass("check")){
+    for (let i = 0; i < 8; i++) {
+        for (let j = 0; j < 8; j++) {
+            if ($("." + i + "x" + j).hasClass("check")) {
                 $("." + i + "x" + j).removeClass("check");
             }
         }
@@ -1061,8 +1137,8 @@ function movePiece(row, col, initialRow) {
         // get the row of selectedPiece
 
         var enpassantPiece = {
-            piece:undefined,
-            counter:0
+            piece: undefined,
+            counter: 0
         }
 
         if (currentTeam == "black") {
@@ -1088,7 +1164,7 @@ function movePiece(row, col, initialRow) {
     }
     blockedMoves = [];
     defendedPieces = [];
-    if(checkDraw() == true){
+    if (checkDraw() == true) {
         draw();
         return;
     }
@@ -1096,9 +1172,9 @@ function movePiece(row, col, initialRow) {
     checkAttackLines();
     clearMoves();
     changeTeams();
-    
+
 }
-function changeTeams(){
+function changeTeams() {
     if (currentTeam == "black") {
         // console.log("changing teams");
 
@@ -1309,7 +1385,7 @@ function checkAttackLines() {
         }
         if (pieces[i].classList.contains("fa-chess-rook")) {
             rookAttackLine(row, col, team);
-           
+
             // console.log("testing attack lines B");
 
         }
@@ -1320,13 +1396,13 @@ function checkAttackLines() {
         }
         if (pieces[i].classList.contains("fa-chess-bishop")) {
             bishopAttackLine(row, col, team);
-       
+
             // console.log("testing attack lines B");
 
         }
         if (pieces[i].classList.contains("fa-chess-queen")) {
             queenAttackLine(row, col, team);
-          
+
             // console.log("testing attack lines B");
 
         }
@@ -1403,7 +1479,7 @@ function checkAttackLines() {
                 // check if attacklines intersect with enemy king
                 if ($("." + i + "x" + j).children().length > 0) {
                     if ($("." + i + "x" + j).children().hasClass("fa-chess-king")) {
-                        
+
 
                         if (team == "black") {
                             if ($("." + i + "x" + j).children().hasClass("whitePiece")) {
@@ -1438,7 +1514,7 @@ function checkAttackLines() {
                 kingTotalMoves++;
 
             }
-            
+
             // console.log($("." + i + "x" + j).children());
             // console.log(selectedPiece);
 
@@ -1450,13 +1526,13 @@ function checkAttackLines() {
                     enemyCanKill = true;
                 }
             }
-            
+
 
         }
     }
 
-    for(let i = 0 ; i < 8; i++){
-        for(j = 0; j < 8; j++){
+    for (let i = 0; i < 8; i++) {
+        for (j = 0; j < 8; j++) {
             if ($("." + i + "x" + j).hasClass(uniqueAttackLine)) {
                 // console.log("unique attack line found");
                 // console.log(uniqueAttackLine);
@@ -1467,40 +1543,42 @@ function checkAttackLines() {
                     enemyCanBlock = true;
                 }
 
-                       
+
             }
             if ($("." + i + "x" + j).children().length > 0) {
                 if ($("." + i + "x" + j).children().hasClass("fa-chess-king")) {
-                    for(let k = 0; k <= maxClassNumber; k++){
-                        if($("." + i + "x" + j).hasClass("piercing" + k)){
+                    for (let k = 0; k <= maxClassNumber; k++) {
+                        if ($("." + i + "x" + j).hasClass("piercing" + k)) {
                             piercingAttackLine = k;
                             console.log("piercing line located");
-                            
+
                         }
-                    }  
+                    }
                 }
-            }  
+            }
         }
     }
-    
+
     let pieceCounter = 0;
     let pieceLocations = [];
     // count and locate all the pieces that are inside the piercing attack line
 
-     // for the bishops, rooks and queen, display an attackline that ignores all enemy pieces except the king.
+    // for the bishops, rooks and queen, display an attackline that ignores all enemy pieces except the king.
     // for each attackline, count the number of enemypieces that intersect with it.
     // if the number of pieces count to 3 (the attacking piece, the blocking piece, and the king, only allow that piece's movement to be inside the attack line.
     // if the number of pieces count to greater than 3, allow all movement to occur.
-    
-    if(piercingAttackLine != undefined){
-        for(let i = 0; i < 8; i++){
-            for(let j = 0; j < 8; j++){
-                if($("." + i + "x" + j).hasClass("piercing" + piercingAttackLine)){
-                    if($("." + i + "x" + j).children().length > 0){
+
+    blockingPiece.possibleMoves = [];
+    if (piercingAttackLine != undefined) {
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j++) {
+                if ($("." + i + "x" + j).hasClass("piercing" + piercingAttackLine)) {
+                    blockingPiece.possibleMoves.push([i,j]);
+                    if ($("." + i + "x" + j).children().length > 0) {
                         pieceCounter++;
                         // if piece is not of the same team, or not the enemyking, save the location
-                        if($("." + i + "x" + j).children()[0].classList.contains(currentTeam + "Piece") == false && $("." + i + "x" + j).children()[0].classList.contains("fa-chess-king") == false){
-                            pieceLocations.push([i,j]);
+                        if ($("." + i + "x" + j).children()[0].classList.contains(currentTeam + "Piece") == false && $("." + i + "x" + j).children()[0].classList.contains("fa-chess-king") == false) {
+                            pieceLocations.push([i, j]);
                         }
                     }
                 }
@@ -1510,17 +1588,18 @@ function checkAttackLines() {
 
     // console.log(pieceCounter);
     // console.log(pieceLocations);
-    
-    if(pieceCounter == 3){
-
-        // for the one piece that is blocking, save the positions that can be made to a global array
-        // save the position of the blocking piece to a global variable
+    currentlyBlocking = false;
+    if (pieceCounter == 3) {
         
+        currentlyBlocking = true;
+        
+        // save the position of the blocking piece to a global variable
+        blockingPiece.piece = pieceLocations[0];
     }
-    
- 
-    
-    
+
+
+
+
     //  store all the co-ordinates for the uniqueAttackLine in a global array so the enemy's moves can only be ones that are in the array.
     checkAttackLine = [];
     for (let i = 0; i < 8; i++) {
@@ -1531,7 +1610,7 @@ function checkAttackLines() {
         }
     }
 
-   
+
 
 
     // console.log(kingTotalMoves);
@@ -1559,24 +1638,24 @@ function checkAttackLines() {
 
     // if the attacklines intersect with the king, check if there are possible moves. If yes, it's a check. If none, check if ally lines block enemylines. If none, it's checkmate .Otherwise, it's a check.
 }
-function checkDraw(){
+function checkDraw() {
 
     let pieceCounter = 0
-    for(i = 0; i < 8; i++){
-        for(j = 0; j < 8; j++){
-            if($("."+i+"x"+j).children().hasClass("chessPiece")){
+    for (i = 0; i < 8; i++) {
+        for (j = 0; j < 8; j++) {
+            if ($("." + i + "x" + j).children().hasClass("chessPiece")) {
                 pieceCounter++;
             }
         }
     }
 
-    if(drawCounter == 50 || pieceCounter == 2){
+    if (drawCounter == 50 || pieceCounter == 2) {
         return true;
     }
 
     return false;
 }
-function draw(){
+function draw() {
     let tiles = document.getElementsByClassName("tile");
 
     for (let i = 0; i < tiles.length; i++) {
@@ -1591,13 +1670,13 @@ function draw(){
     $(".checkStatus").toggle();
     $(".checkStatus").text("Its a DRAW!");
     $(".currentTurn h1").text("Its a DRAW!");
-    setTimeout(function(){
+    setTimeout(function () {
         $(".checkStatus").fadeOut();
     }, 3000);
 }
 function checkmate(team) {
-    
-    
+
+
     let tiles = document.getElementsByClassName("tile");
 
     for (let i = 0; i < tiles.length; i++) {
@@ -1609,24 +1688,24 @@ function checkmate(team) {
         pieces[i].removeEventListener("mousedown", onPieceTouch);
     }
     // locate check square and convert to a checkmate square
-    for(let i = 0; i < 8; i++){
-        for(let j = 0; j < 8; j++){
-            if($("." + i + "x" + j).hasClass("check")){
+    for (let i = 0; i < 8; i++) {
+        for (let j = 0; j < 8; j++) {
+            if ($("." + i + "x" + j).hasClass("check")) {
                 $("." + i + "x" + j).addClass("checkmate");
             }
         }
     }
     var winner;
-    if(team == "white"){
+    if (team == "white") {
         winner = "black";
     }
-    else{
+    else {
         winner = "white";
     }
     $(".checkStatus").toggle();
     $(".checkStatus").text(team.toUpperCase() + " checkmate. " + winner.toUpperCase() + " wins!");
     $(".currentTurn h1").text(team.toUpperCase() + " checkmate. " + winner.toUpperCase() + " wins!");
-    setTimeout(function(){
+    setTimeout(function () {
         $(".checkStatus").fadeOut();
     }, 3000);
     // remove all event listeners, display win message
@@ -1634,27 +1713,27 @@ function checkmate(team) {
 function check(team) {
 
     // display check message
-   
+
     $(".checkStatus").toggle();
     $(".checkStatus").text(team.toUpperCase() + " in check!");
-    setTimeout(function(){
+    setTimeout(function () {
         $(".checkStatus").fadeOut();
     }, 1000);
     // for all pieces, but the king and those with attacklines that intercept all possible checks, remove their event listeners
 }
 $(".reset").click(resetBoard);
-function resetBoard(){
-    
+function resetBoard() {
 
-    for(let i = 0; i < 8; i++){
-        for(let j = 0; j < 8; j++){
-            if($("." + i + "x" + j).hasClass("check")){
+
+    for (let i = 0; i < 8; i++) {
+        for (let j = 0; j < 8; j++) {
+            if ($("." + i + "x" + j).hasClass("check")) {
                 $("." + i + "x" + j).removeClass("check");
             }
-            if($("." + i + "x" + j).hasClass("checkmate")){
+            if ($("." + i + "x" + j).hasClass("checkmate")) {
                 $("." + i + "x" + j).removeClass("checkmate");
             }
-            if($("." + i + "x" + j).children().length > 0){
+            if ($("." + i + "x" + j).children().length > 0) {
                 $("." + i + "x" + j).children()[0].remove();
             }
         }
@@ -1688,8 +1767,8 @@ function resetBoard(){
     for (let i = 0; i < pieces.length; i++) {
         pieces[i].addEventListener("mousedown", onPieceTouch);
     }
-    
-    
+
+
 }
 function enemyKingMoves(row, col, team) {
     checkKingCross(row, col, team, 1);
@@ -1712,33 +1791,24 @@ function clearKingLine() {
         }
     }
 }
-function checkCheckmate() {
-    // check after each move if it's a checkmate
-}
-function checkCheck() {
-
-    // check if king still has possible moves
-
-
-}
 
 // ************************************************************************************************************************************************
 // ************************************************************************************************************************************************
 //                                                          Attack Line Code
 // ************************************************************************************************************************************************
 // ************************************************************************************************************************************************
-function displayPiercingAttack(row,col,id){
+function displayPiercingAttack(row, col, id) {
     let attackTile = document.getElementsByClassName(row + "x" + col)[0];
     if (attackTile != undefined) {
         attackTile.classList.add("piercing" + id);
     }
 }
-function clearPiercingAttack(){
-    for(let i = 0; i < 8; i++){
-        for(let j = 0; j < 8; j++){
+function clearPiercingAttack() {
+    for (let i = 0; i < 8; i++) {
+        for (let j = 0; j < 8; j++) {
 
-            for(let k = 0; k <= maxClassNumber ;k++){
-                if($("." + i + "x" + j).hasClass("piercing" + k)){
+            for (let k = 0; k <= maxClassNumber; k++) {
+                if ($("." + i + "x" + j).hasClass("piercing" + k)) {
                     $("." + i + "x" + j).removeClass("piercing" + k);
                 }
             }
@@ -1894,7 +1964,7 @@ function rookAttackLine(row, col, team) {
     classCounter++;
     maxClassNumber++;
     checkCrossAttack(row, col, team, 8, uniqueClass);
-    checkPiercingCross(row,col,team,8,uniqueClass);
+    checkPiercingCross(row, col, team, 8, uniqueClass);
 
 }
 function knightAttackLine(row, col, team) {
@@ -2028,16 +2098,16 @@ function queenAttackLine(row, col, team) {
     checkPiercingDiagonals(row, col, team, 8, uniqueClass);
     checkPiercingCross(row, col, team, 8, uniqueClass);
 }
-function checkPiercingDiagonals(row, col, team, limit, uniqueClass){
+function checkPiercingDiagonals(row, col, team, limit, uniqueClass) {
     let checkCol = col - 1;
     let checkRow = row + 1;
     enemyCount = 0;
     kingFound = false;
     for (i = 0; i < limit; i++) {
-        
-         if(kingFound == false){
+
+        if (kingFound == false) {
             if (checkTile(checkRow, checkCol, team, "bishop") == true) {
-              
+
                 displayPiercingAttack(checkRow, checkCol, uniqueClass);
                 displayPiercingAttack(row, col, uniqueClass);
 
@@ -2047,10 +2117,10 @@ function checkPiercingDiagonals(row, col, team, limit, uniqueClass){
             else {
                 i = limit;
             }
-         }
+        }
 
-            
-        
+
+
     }
     checkCol = col + 1;
     checkRow = row - 1;
@@ -2059,11 +2129,11 @@ function checkPiercingDiagonals(row, col, team, limit, uniqueClass){
     maxClassNumber++;
     kingFound = false;
     for (i = 0; i < limit; i++) {
-        
-        if(kingFound == false){
+
+        if (kingFound == false) {
 
             if (checkTile(checkRow, checkCol, team, "bishop") == true) {
-                
+
                 uniqueClass = classCounter.toString();
                 displayPiercingAttack(checkRow, checkCol, uniqueClass);
                 displayPiercingAttack(row, col, uniqueClass);
@@ -2075,8 +2145,8 @@ function checkPiercingDiagonals(row, col, team, limit, uniqueClass){
                 i = limit;
             }
         }
-           
-        
+
+
 
     }
 
@@ -2091,11 +2161,11 @@ function checkPiercingDiagonals(row, col, team, limit, uniqueClass){
     maxClassNumber++;
     kingFound = false;
     for (i = 0; i < limit; i++) {
-        
-        if(kingFound == false){
+
+        if (kingFound == false) {
             if (checkTile(checkRow, checkCol, team, "bishop") == true) {
 
-               
+
                 uniqueClass = classCounter.toString();
                 displayPiercingAttack(row, col, uniqueClass);
 
@@ -2108,9 +2178,9 @@ function checkPiercingDiagonals(row, col, team, limit, uniqueClass){
                 i = limit;
             }
         }
-            
-            
-        
+
+
+
 
     }
     checkCol = col + 1;
@@ -2120,10 +2190,10 @@ function checkPiercingDiagonals(row, col, team, limit, uniqueClass){
     maxClassNumber++;
     kingFound = false;
     for (i = 0; i < limit; i++) {
-        
-        if(kingFound == false){
+
+        if (kingFound == false) {
             if (checkTile(checkRow, checkCol, team, "bishop") == true) {
-            
+
                 uniqueClass = classCounter.toString();
                 displayPiercingAttack(row, col, uniqueClass);
 
@@ -2137,13 +2207,13 @@ function checkPiercingDiagonals(row, col, team, limit, uniqueClass){
                 i = limit;
             }
         }
-           
-            
-        
+
+
+
 
     }
 }
-function checkPiercingCross(row, col, team, limit, uniqueClass){
+function checkPiercingCross(row, col, team, limit, uniqueClass) {
     if (col < 7) {
         enemyCount = 0;
         let checkCol = col + 1;
@@ -2151,10 +2221,10 @@ function checkPiercingCross(row, col, team, limit, uniqueClass){
 
         // check horizontal moves to the right
         for (let i = 0; i < limit; i++) {
-            
-            if(kingFound == false){
+
+            if (kingFound == false) {
                 if (checkTile(row, checkCol, team, "rook") == true) {
-                   
+
                     uniqueClass = classCounter.toString();
                     displayPiercingAttack(row, col, uniqueClass);
 
@@ -2167,8 +2237,8 @@ function checkPiercingCross(row, col, team, limit, uniqueClass){
                     i = limit;
                 }
             }
-               
-            
+
+
 
         }
     }
@@ -2180,25 +2250,25 @@ function checkPiercingCross(row, col, team, limit, uniqueClass){
         // check horizontal moves to the left
         let checkCol = col - 1;
         for (let i = 0; i < limit; i++) {
-           
-                if(kingFound == false){
-                    if (checkTile(row, checkCol, team, "rook") == true) {
-                   
-                        uniqueClass = classCounter.toString();
-                        displayPiercingAttack(row, col, uniqueClass);
-    
-                        displayPiercingAttack(row, checkCol, uniqueClass);
-    
-    
-    
-                        checkCol--;
-                    }
-                    else {
-                        i = limit;
-                    }
+
+            if (kingFound == false) {
+                if (checkTile(row, checkCol, team, "rook") == true) {
+
+                    uniqueClass = classCounter.toString();
+                    displayPiercingAttack(row, col, uniqueClass);
+
+                    displayPiercingAttack(row, checkCol, uniqueClass);
+
+
+
+                    checkCol--;
                 }
-                
-            
+                else {
+                    i = limit;
+                }
+            }
+
+
 
         }
     }
@@ -2210,10 +2280,10 @@ function checkPiercingCross(row, col, team, limit, uniqueClass){
         enemyCount = 0;
         let checkRow = row - 1;
         for (let i = 0; i < limit; i++) {
-            
-            if(kingFound == false){
+
+            if (kingFound == false) {
                 if (checkTile(checkRow, col, team, "rook") == true) {
-                   
+
                     uniqueClass = classCounter.toString();
                     displayPiercingAttack(row, col, uniqueClass);
 
@@ -2225,9 +2295,9 @@ function checkPiercingCross(row, col, team, limit, uniqueClass){
                 else {
                     i = limit;
                 }
-            
+
             }
-              
+
 
         }
     }
@@ -2240,10 +2310,10 @@ function checkPiercingCross(row, col, team, limit, uniqueClass){
         enemyCount = 0;
         let checkRow = row + 1;
         for (let i = 0; i < limit; i++) {
-            
-            if(kingFound == false){
+
+            if (kingFound == false) {
                 if (checkTile(checkRow, col, team, "rook") == true) {
-                    
+
                     uniqueClass = classCounter.toString();
                     displayPiercingAttack(row, col, uniqueClass);
 
@@ -2256,8 +2326,8 @@ function checkPiercingCross(row, col, team, limit, uniqueClass){
                     i = limit;
                 }
             }
-            
-            
+
+
         }
     }
 
@@ -2380,7 +2450,7 @@ function checkCrossAttack(row, col, team, limit, uniqueClass) {
         enemyCount = 0;
         let checkCol = col + 1;
         classCounter++;
-    maxClassNumber++;
+        maxClassNumber++;
 
         // check horizontal moves to the right
         for (let i = 0; i < limit; i++) {
@@ -2724,10 +2794,10 @@ function pawnEnemyMove(row, col, team) {
             // console.log("testing 2");
             displayEnemyMove(checkRow, checkCol + 1);
         }
-        if (checkEnpassant(row, col + 1, team,"right") == true) {
+        if (checkEnpassant(row, col + 1, team, "right") == true) {
             displayEnemyMove(checkRow, checkCol + 1);
         }
-        if (checkEnpassant(row, col - 1, team,"left") == true) {
+        if (checkEnpassant(row, col - 1, team, "left") == true) {
             displayEnemyMove(checkRow, checkCol - 1);
         }
 
