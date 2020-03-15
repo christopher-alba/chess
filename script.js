@@ -10,6 +10,8 @@ var enemyCount;
 
 let classCounter = 0;
 let maxClassNumber = 0;
+
+
 let enpassantBlackPieces = [];
 let enpassantWhitePieces = [];
 var currentEmpassantPiece;
@@ -434,11 +436,11 @@ function pawnMoves(row, col, team) {
             displayPossibleMove(checkRow, checkCol + 1);
         }
 
-        if (checkEnpassant(row, col - 1, team) == true) {
-            displayPossibleEmpassant(checkRow, checkCol - 1, "left");
+        if (checkEnpassant(row, col - 1, team, "left") == true) {
+            displayPossibleEmpassant(checkRow, checkCol - 1);
         }
-        if (checkEnpassant(row, col + 1, team) == true) {
-            displayPossibleEmpassant(checkRow, checkCol + 1, "right");
+        if (checkEnpassant(row, col + 1, team, "right") == true) {
+            displayPossibleEmpassant(checkRow, checkCol + 1);
         }
     }
 
@@ -883,7 +885,7 @@ function checkEnpassant(row, col, team, side) {
                 // if there is a piece in the enemy team, check if its an enpassant piece
                 for (let i = 0; i < enpassantBlackPieces.length; i++) {
 
-                    if (tileToCheck.childNodes[0] == enpassantBlackPieces[i]) {
+                    if (tileToCheck.childNodes[0] == enpassantBlackPieces[i].piece) {
 
                         if (newPosChild.length > 0) {
                             if (newPos.childNodes[0].classList.contains("whitePiece") == true) {
@@ -892,7 +894,7 @@ function checkEnpassant(row, col, team, side) {
                             }
                         }
 
-                        currentEmpassantPiece = enpassantBlackPieces[i];
+                        currentEmpassantPiece = enpassantBlackPieces[i].piece;
                         return true;
 
                     }
@@ -920,7 +922,7 @@ function checkEnpassant(row, col, team, side) {
             }
             else {
                 for (let i = 0; i < enpassantWhitePieces.length; i++) {
-                    if (tileToCheck.childNodes[0] == enpassantWhitePieces[i]) {
+                    if (tileToCheck.childNodes[0] == enpassantWhitePieces[i].piece) {
 
                         if (newPosChild.length > 0) {
                             if (newPos.childNodes[0].classList.contains("blackPiece") == true) {
@@ -928,7 +930,7 @@ function checkEnpassant(row, col, team, side) {
                                 return false;
                             }
                         }
-                        currentEmpassantPiece = enpassantWhitePieces[i];
+                        currentEmpassantPiece = enpassantWhitePieces[i].piece;
                         return true;
                     }
                 }
@@ -997,16 +999,19 @@ function movePiece(row, col, initialRow) {
     // console.log(row);
     // console.log(col);
     for (let i = 0; i < enpassantBlackPieces.length; i++) {
-        if (enpassantBlackPieces[i] == selectedPiece) {
+        enpassantBlackPieces[i].counter++;
+        if (enpassantBlackPieces[i].piece == selectedPiece || enpassantBlackPieces[i].counter == 1) {
             enpassantBlackPieces.splice(i, 1);
-            // console.log(enpassantBlackPieces);
+            console.log(enpassantBlackPieces);
 
         }
     }
     for (let i = 0; i < enpassantWhitePieces.length; i++) {
-        if (enpassantWhitePieces[i] == selectedPiece) {
+        enpassantWhitePieces[i].counter++;
+        if (enpassantWhitePieces[i].piece == selectedPiece || enpassantWhitePieces[i].counter == 1) {
+           
             enpassantWhitePieces.splice(i, 1);
-            // console.log(enpassantWhitePieces);
+            console.log(enpassantWhitePieces);
 
         }
     }
@@ -1046,20 +1051,27 @@ function movePiece(row, col, initialRow) {
     if (selectedPiece.classList.contains("fa-chess-pawn")) {
         // get the row of selectedPiece
 
+        var enpassantPiece = {
+            piece:undefined,
+            counter:0
+        }
 
         if (currentTeam == "black") {
 
 
             if (row - initialRow == 2) {
-                enpassantBlackPieces.push(selectedPiece);
-                // console.log(enpassantBlackPieces);
+
+                enpassantPiece.piece = selectedPiece;
+                enpassantBlackPieces.push(enpassantPiece);
+                console.log(enpassantBlackPieces);
 
             }
         }
         else {
             if (initialRow - row == 2) {
-                enpassantWhitePieces.push(selectedPiece);
-                // console.log(enpassantWhitePieces);
+                enpassantPiece.piece = selectedPiece;
+                enpassantWhitePieces.push(enpassantPiece);
+                console.log(enpassantWhitePieces);
             }
         }
 
@@ -1250,6 +1262,7 @@ function checkAttackLines() {
     var pieces;
     var team;
     clearUniqueClass();
+    clearPiercingAttack();
     if (currentTeam == "black") {
         pieces = document.getElementsByClassName("blackPiece");
         team = "black";
@@ -1283,6 +1296,7 @@ function checkAttackLines() {
         }
         if (pieces[i].classList.contains("fa-chess-rook")) {
             rookAttackLine(row, col, team);
+           
             // console.log("testing attack lines B");
 
         }
@@ -1293,11 +1307,13 @@ function checkAttackLines() {
         }
         if (pieces[i].classList.contains("fa-chess-bishop")) {
             bishopAttackLine(row, col, team);
+       
             // console.log("testing attack lines B");
 
         }
         if (pieces[i].classList.contains("fa-chess-queen")) {
             queenAttackLine(row, col, team);
+          
             // console.log("testing attack lines B");
 
         }
@@ -1358,6 +1374,7 @@ function checkAttackLines() {
     let enemyCanBlock = false;
     let enemyCanKill = false;
     var uniqueAttackLine;
+    var piercingAttackLine;
     currentlyInCheck = false;
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
@@ -1373,6 +1390,7 @@ function checkAttackLines() {
                 // check if attacklines intersect with enemy king
                 if ($("." + i + "x" + j).children().length > 0) {
                     if ($("." + i + "x" + j).children().hasClass("fa-chess-king")) {
+                        
 
                         if (team == "black") {
                             if ($("." + i + "x" + j).children().hasClass("whitePiece")) {
@@ -1413,12 +1431,13 @@ function checkAttackLines() {
 
 
             if ($("." + i + "x" + j).children()[0] == selectedPiece) {
-                console.log("selected Piece Found");
+                // console.log("selected Piece Found");
 
                 if ($("." + i + "x" + j).hasClass("enemyMove")) {
                     enemyCanKill = true;
                 }
             }
+            
 
         }
     }
@@ -1427,17 +1446,68 @@ function checkAttackLines() {
         for(j = 0; j < 8; j++){
             if ($("." + i + "x" + j).hasClass(uniqueAttackLine)) {
                 // console.log("unique attack line found");
-                console.log(uniqueAttackLine);
+                // console.log(uniqueAttackLine);
 
 
                 if ($("." + i + "x" + j).hasClass("enemyMove")) {
                     console.log("enemyMove Found");
                     enemyCanBlock = true;
                 }
+
+                       
+            }
+            if ($("." + i + "x" + j).children().length > 0) {
+                if ($("." + i + "x" + j).children().hasClass("fa-chess-king")) {
+                    for(let k = 0; k <= maxClassNumber; k++){
+                        if($("." + i + "x" + j).hasClass("piercing" + k)){
+                            piercingAttackLine = k;
+                            console.log("piercing line located");
+                            
+                        }
+                    }  
+                }
+            }  
+        }
+    }
+    
+    let pieceCounter = 0;
+    let pieceLocations = [];
+    // count and locate all the pieces that are inside the piercing attack line
+
+     // for the bishops, rooks and queen, display an attackline that ignores all enemy pieces except the king.
+    // for each attackline, count the number of enemypieces that intersect with it.
+    // if the number of pieces count to 3 (the attacking piece, the blocking piece, and the king, only allow that piece's movement to be inside the attack line.
+    // if the number of pieces count to greater than 3, allow all movement to occur.
+    
+    if(piercingAttackLine != undefined){
+        for(let i = 0; i < 8; i++){
+            for(let j = 0; j < 8; j++){
+                if($("." + i + "x" + j).hasClass("piercing" + piercingAttackLine)){
+                    if($("." + i + "x" + j).children().length > 0){
+                        pieceCounter++;
+                        // if piece is not of the same team, or not the enemyking, save the location
+                        if($("." + i + "x" + j).children()[0].classList.contains(currentTeam + "Piece") == false && $("." + i + "x" + j).children()[0].classList.contains("fa-chess-king") == false){
+                            pieceLocations.push([i,j]);
+                        }
+                    }
+                }
             }
         }
     }
 
+    // console.log(pieceCounter);
+    // console.log(pieceLocations);
+    
+    if(pieceCounter == 3){
+
+        // for the one piece that is blocking, save the positions that can be made to a global array
+        // save the position of the blocking piece to a global variable
+        
+    }
+    
+ 
+    
+    
     //  store all the co-ordinates for the uniqueAttackLine in a global array so the enemy's moves can only be ones that are in the array.
     checkAttackLine = [];
     for (let i = 0; i < 8; i++) {
@@ -1447,6 +1517,8 @@ function checkAttackLines() {
             }
         }
     }
+
+   
 
 
     // console.log(kingTotalMoves);
@@ -1606,6 +1678,26 @@ function checkCheck() {
 //                                                          Attack Line Code
 // ************************************************************************************************************************************************
 // ************************************************************************************************************************************************
+function displayPiercingAttack(row,col,id){
+    let attackTile = document.getElementsByClassName(row + "x" + col)[0];
+    if (attackTile != undefined) {
+        attackTile.classList.add("piercing" + id);
+    }
+}
+function clearPiercingAttack(){
+    for(let i = 0; i < 8; i++){
+        for(let j = 0; j < 8; j++){
+
+            for(let k = 0; k <= maxClassNumber ;k++){
+                if($("." + i + "x" + j).hasClass("piercing" + k)){
+                    $("." + i + "x" + j).removeClass("piercing" + k);
+                }
+            }
+
+        }
+    }
+}
+
 function displayAttackLine(row, col) {
     // console.log("testing attack line");
 
@@ -1616,6 +1708,7 @@ function displayAttackLine(row, col) {
     }
 
 }
+
 function clearAttackLines() {
 
     for (let i = 0; i < 8; i++) {
@@ -1745,12 +1838,14 @@ function pawnAttackLine(row, col, team) {
     }
 
 }
+
 function rookAttackLine(row, col, team) {
 
     let uniqueClass = classCounter.toString();
     classCounter++;
     maxClassNumber++;
     checkCrossAttack(row, col, team, 8, uniqueClass);
+    checkPiercingCross(row,col,team,8,uniqueClass);
 
 }
 function knightAttackLine(row, col, team) {
@@ -1867,6 +1962,7 @@ function bishopAttackLine(row, col, team) {
     classCounter++;
     maxClassNumber++;
     checkDiagonalsAttack(row, col, team, 8, uniqueClass);
+    checkPiercingDiagonals(row, col, team, 8, uniqueClass);
 
 
 }
@@ -1880,6 +1976,217 @@ function queenAttackLine(row, col, team) {
     maxClassNumber++;
     checkDiagonalsAttack(row, col, team, 8, uniqueClass);
     checkCrossAttack(row, col, team, 8, uniqueClass);
+    checkPiercingDiagonals(row, col, team, 8, uniqueClass);
+    checkPiercingCross(row, col, team, 8, uniqueClass);
+}
+function checkPiercingDiagonals(row, col, team, limit, uniqueClass){
+    let checkCol = col - 1;
+    let checkRow = row + 1;
+    enemyCount = 0;
+    for (i = 0; i < limit; i++) {
+        
+         
+
+            if (checkTile(checkRow, checkCol, team, "bishop") == true) {
+              
+                displayPiercingAttack(checkRow, checkCol, uniqueClass);
+                displayPiercingAttack(row, col, uniqueClass);
+
+                checkCol--;
+                checkRow++;
+            }
+            else {
+                i = limit;
+            }
+        
+    }
+    checkCol = col + 1;
+    checkRow = row - 1;
+    enemyCount = 0;
+    classCounter++;
+    maxClassNumber++;
+
+    for (i = 0; i < limit; i++) {
+        
+           
+            if (checkTile(checkRow, checkCol, team, "bishop") == true) {
+                
+                uniqueClass = classCounter.toString();
+                displayPiercingAttack(checkRow, checkCol, uniqueClass);
+                displayPiercingAttack(row, col, uniqueClass);
+
+                checkCol++;
+                checkRow--;
+            }
+            else {
+                i = limit;
+            }
+        
+
+    }
+
+
+
+
+    // check descending diagonal (L->R)
+    checkCol = col - 1;
+    checkRow = row - 1;
+    enemyCount = 0;
+    classCounter++;
+    maxClassNumber++;
+
+    for (i = 0; i < limit; i++) {
+        
+            
+            if (checkTile(checkRow, checkCol, team, "bishop") == true) {
+
+               
+                uniqueClass = classCounter.toString();
+                displayPiercingAttack(row, col, uniqueClass);
+
+                displayPiercingAttack(checkRow, checkCol, uniqueClass);
+
+                checkCol--;
+                checkRow--;
+            }
+            else {
+                i = limit;
+            }
+        
+
+    }
+    checkCol = col + 1;
+    checkRow = row + 1;
+    enemyCount = 0;
+    classCounter++;
+    maxClassNumber++;
+
+    for (i = 0; i < limit; i++) {
+        
+           
+            if (checkTile(checkRow, checkCol, team, "bishop") == true) {
+            
+                uniqueClass = classCounter.toString();
+                displayPiercingAttack(row, col, uniqueClass);
+
+                displayPiercingAttack(checkRow, checkCol, uniqueClass);
+
+
+                checkCol++;
+                checkRow++;
+            }
+            else {
+                i = limit;
+            }
+        
+
+    }
+}
+function checkPiercingCross(row, col, team, limit, uniqueClass){
+    if (col < 7) {
+        enemyCount = 0;
+        let checkCol = col + 1;
+
+        // check horizontal moves to the right
+        for (let i = 0; i < limit; i++) {
+            
+                
+                if (checkTile(row, checkCol, team, "rook") == true) {
+                   
+                    uniqueClass = classCounter.toString();
+                    displayPiercingAttack(row, col, uniqueClass);
+
+                    displayPiercingAttack(row, checkCol, uniqueClass);
+
+
+                    checkCol++;
+                }
+                else {
+                    i = limit;
+                }
+            
+
+        }
+    }
+    classCounter++;
+    maxClassNumber++;
+
+    if (col > 0) {
+        enemyCount = 0;
+        // check horizontal moves to the left
+        let checkCol = col - 1;
+        for (let i = 0; i < limit; i++) {
+           
+               
+                if (checkTile(row, checkCol, team, "rook") == true) {
+                   
+                    uniqueClass = classCounter.toString();
+                    displayPiercingAttack(row, col, uniqueClass);
+
+                    displayPiercingAttack(row, checkCol, uniqueClass);
+
+
+
+                    checkCol--;
+                }
+                else {
+                    i = limit;
+                }
+            
+
+        }
+    }
+    classCounter++;
+    maxClassNumber++;
+    // check vertical moves above
+    if (row > 0) {
+        enemyCount = 0;
+        let checkRow = row - 1;
+        for (let i = 0; i < limit; i++) {
+            
+                if (checkTile(checkRow, col, team, "rook") == true) {
+                   
+                    uniqueClass = classCounter.toString();
+                    displayPiercingAttack(row, col, uniqueClass);
+
+                    displayPiercingAttack(checkRow, col, uniqueClass);
+
+
+                    checkRow--;
+                }
+                else {
+                    i = limit;
+                }
+            
+
+        }
+    }
+
+    classCounter++;
+    maxClassNumber++;
+    // check vertical moves below
+    if (row < 7) {
+        enemyCount = 0;
+        let checkRow = row + 1;
+        for (let i = 0; i < limit; i++) {
+            
+                if (checkTile(checkRow, col, team, "rook") == true) {
+                    
+                    uniqueClass = classCounter.toString();
+                    displayPiercingAttack(row, col, uniqueClass);
+
+                    displayPiercingAttack(checkRow, col, uniqueClass);
+
+
+                    checkRow++;
+                }
+                else {
+                    i = limit;
+                }
+            
+        }
+    }
+
 }
 function checkDiagonalsAttack(row, col, team, limit, uniqueClass) {
     let checkCol = col - 1;
@@ -2117,10 +2424,11 @@ function displayUniqueClass(row, col, uniqueClass) {
     // clear all unique classes before calling the attack line functions again to prevent build up of incorrect attack line IDs
 }
 function clearUniqueClass() {
+
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
 
-            for (let k = 0; k < maxClassNumber; k++) {
+            for (let k = 0; k <= maxClassNumber; k++) {
                 if ($("." + i + "x" + j).hasClass(k.toString())) {
                     $("." + i + "x" + j).removeClass(k.toString());
                 }
@@ -2128,6 +2436,7 @@ function clearUniqueClass() {
 
         }
     }
+
 }
 // the functions below check the enemy king's possible moves before accounting for attack lines and defended pieces, hence it uses the bishop and rook types.
 function checkKingDiagonals(row, col, team, limit) {
@@ -2337,11 +2646,11 @@ function pawnEnemyMove(row, col, team) {
             // console.log("testing 2");
             displayEnemyMove(checkRow, checkCol + 1);
         }
-        if (checkEnpassant(row, col + 1, team) == true) {
-            displayEnemyMove(checkRow, checkCol + 1, "right");
+        if (checkEnpassant(row, col + 1, team,"right") == true) {
+            displayEnemyMove(checkRow, checkCol + 1);
         }
-        if (checkEnpassant(row, col - 1, team) == true) {
-            displayEnemyMove(checkRow, checkCol - 1, "left");
+        if (checkEnpassant(row, col - 1, team,"left") == true) {
+            displayEnemyMove(checkRow, checkCol - 1);
         }
 
 
