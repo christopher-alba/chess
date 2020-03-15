@@ -6,7 +6,7 @@ let currentTeam = "white";
 var selectedPiece;
 var killedPiece;
 var enemyCount;
-
+var drawCounter;
 
 let classCounter = 0;
 let maxClassNumber = 0;
@@ -770,7 +770,9 @@ function checkTile(row, col, team, piece) {
         }
         else {
 
-
+            if(tileChild.hasClass("fa-chess-king")){
+                kingFound = true;
+            }
             if (team == "black") {
                 // console.log(tileChild.hasClass("whitePiece"));
 
@@ -998,6 +1000,13 @@ function movePiece(row, col, initialRow) {
     // console.log("testing 1");
     // console.log(row);
     // console.log(col);
+    if(selectedPiece.classList.contains("fa-chess-pawn") == false){
+        drawCounter++;
+    }
+    else{
+        drawCounter = 0;
+    }
+    
     for (let i = 0; i < enpassantBlackPieces.length; i++) {
         enpassantBlackPieces[i].counter++;
         if (enpassantBlackPieces[i].piece == selectedPiece || enpassantBlackPieces[i].counter == 1) {
@@ -1079,6 +1088,10 @@ function movePiece(row, col, initialRow) {
     }
     blockedMoves = [];
     defendedPieces = [];
+    if(checkDraw() == true){
+        draw();
+        return;
+    }
     clearAttackLines();
     checkAttackLines();
     clearMoves();
@@ -1546,6 +1559,42 @@ function checkAttackLines() {
 
     // if the attacklines intersect with the king, check if there are possible moves. If yes, it's a check. If none, check if ally lines block enemylines. If none, it's checkmate .Otherwise, it's a check.
 }
+function checkDraw(){
+
+    let pieceCounter = 0
+    for(i = 0; i < 8; i++){
+        for(j = 0; j < 8; j++){
+            if($("."+i+"x"+j).children().hasClass("chessPiece")){
+                pieceCounter++;
+            }
+        }
+    }
+
+    if(drawCounter == 50 || pieceCounter == 2){
+        return true;
+    }
+
+    return false;
+}
+function draw(){
+    let tiles = document.getElementsByClassName("tile");
+
+    for (let i = 0; i < tiles.length; i++) {
+        tiles[i].removeEventListener("click", onTileClick)
+    }
+
+    let pieces = document.getElementsByClassName("chessPiece");
+    for (let i = 0; i < pieces.length; i++) {
+        pieces[i].removeEventListener("mousedown", onPieceTouch);
+    }
+
+    $(".checkStatus").toggle();
+    $(".checkStatus").text("Its a DRAW!");
+    $(".currentTurn h1").text("Its a DRAW!");
+    setTimeout(function(){
+        $(".checkStatus").fadeOut();
+    }, 3000);
+}
 function checkmate(team) {
     
     
@@ -1983,10 +2032,10 @@ function checkPiercingDiagonals(row, col, team, limit, uniqueClass){
     let checkCol = col - 1;
     let checkRow = row + 1;
     enemyCount = 0;
+    kingFound = false;
     for (i = 0; i < limit; i++) {
         
-         
-
+         if(kingFound == false){
             if (checkTile(checkRow, checkCol, team, "bishop") == true) {
               
                 displayPiercingAttack(checkRow, checkCol, uniqueClass);
@@ -1998,6 +2047,9 @@ function checkPiercingDiagonals(row, col, team, limit, uniqueClass){
             else {
                 i = limit;
             }
+         }
+
+            
         
     }
     checkCol = col + 1;
@@ -2005,10 +2057,11 @@ function checkPiercingDiagonals(row, col, team, limit, uniqueClass){
     enemyCount = 0;
     classCounter++;
     maxClassNumber++;
-
+    kingFound = false;
     for (i = 0; i < limit; i++) {
         
-           
+        if(kingFound == false){
+
             if (checkTile(checkRow, checkCol, team, "bishop") == true) {
                 
                 uniqueClass = classCounter.toString();
@@ -2021,6 +2074,8 @@ function checkPiercingDiagonals(row, col, team, limit, uniqueClass){
             else {
                 i = limit;
             }
+        }
+           
         
 
     }
@@ -2034,10 +2089,10 @@ function checkPiercingDiagonals(row, col, team, limit, uniqueClass){
     enemyCount = 0;
     classCounter++;
     maxClassNumber++;
-
+    kingFound = false;
     for (i = 0; i < limit; i++) {
         
-            
+        if(kingFound == false){
             if (checkTile(checkRow, checkCol, team, "bishop") == true) {
 
                
@@ -2052,6 +2107,9 @@ function checkPiercingDiagonals(row, col, team, limit, uniqueClass){
             else {
                 i = limit;
             }
+        }
+            
+            
         
 
     }
@@ -2060,10 +2118,10 @@ function checkPiercingDiagonals(row, col, team, limit, uniqueClass){
     enemyCount = 0;
     classCounter++;
     maxClassNumber++;
-
+    kingFound = false;
     for (i = 0; i < limit; i++) {
         
-           
+        if(kingFound == false){
             if (checkTile(checkRow, checkCol, team, "bishop") == true) {
             
                 uniqueClass = classCounter.toString();
@@ -2078,6 +2136,9 @@ function checkPiercingDiagonals(row, col, team, limit, uniqueClass){
             else {
                 i = limit;
             }
+        }
+           
+            
         
 
     }
@@ -2086,11 +2147,12 @@ function checkPiercingCross(row, col, team, limit, uniqueClass){
     if (col < 7) {
         enemyCount = 0;
         let checkCol = col + 1;
+        kingFound = false;
 
         // check horizontal moves to the right
         for (let i = 0; i < limit; i++) {
             
-                
+            if(kingFound == false){
                 if (checkTile(row, checkCol, team, "rook") == true) {
                    
                     uniqueClass = classCounter.toString();
@@ -2104,46 +2166,52 @@ function checkPiercingCross(row, col, team, limit, uniqueClass){
                 else {
                     i = limit;
                 }
+            }
+               
             
 
         }
     }
     classCounter++;
     maxClassNumber++;
-
+    kingFound = false;
     if (col > 0) {
         enemyCount = 0;
         // check horizontal moves to the left
         let checkCol = col - 1;
         for (let i = 0; i < limit; i++) {
            
-               
-                if (checkTile(row, checkCol, team, "rook") == true) {
+                if(kingFound == false){
+                    if (checkTile(row, checkCol, team, "rook") == true) {
                    
-                    uniqueClass = classCounter.toString();
-                    displayPiercingAttack(row, col, uniqueClass);
-
-                    displayPiercingAttack(row, checkCol, uniqueClass);
-
-
-
-                    checkCol--;
+                        uniqueClass = classCounter.toString();
+                        displayPiercingAttack(row, col, uniqueClass);
+    
+                        displayPiercingAttack(row, checkCol, uniqueClass);
+    
+    
+    
+                        checkCol--;
+                    }
+                    else {
+                        i = limit;
+                    }
                 }
-                else {
-                    i = limit;
-                }
+                
             
 
         }
     }
     classCounter++;
     maxClassNumber++;
+    kingFound = false;
     // check vertical moves above
     if (row > 0) {
         enemyCount = 0;
         let checkRow = row - 1;
         for (let i = 0; i < limit; i++) {
             
+            if(kingFound == false){
                 if (checkTile(checkRow, col, team, "rook") == true) {
                    
                     uniqueClass = classCounter.toString();
@@ -2158,18 +2226,22 @@ function checkPiercingCross(row, col, team, limit, uniqueClass){
                     i = limit;
                 }
             
+            }
+              
 
         }
     }
 
     classCounter++;
     maxClassNumber++;
+    kingFound = false;
     // check vertical moves below
     if (row < 7) {
         enemyCount = 0;
         let checkRow = row + 1;
         for (let i = 0; i < limit; i++) {
             
+            if(kingFound == false){
                 if (checkTile(checkRow, col, team, "rook") == true) {
                     
                     uniqueClass = classCounter.toString();
@@ -2183,6 +2255,8 @@ function checkPiercingCross(row, col, team, limit, uniqueClass){
                 else {
                     i = limit;
                 }
+            }
+            
             
         }
     }
