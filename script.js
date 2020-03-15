@@ -2265,6 +2265,8 @@ function checkPiercingCross(row, col, team, limit, uniqueClass){
 function checkDiagonalsAttack(row, col, team, limit, uniqueClass) {
     let checkCol = col - 1;
     let checkRow = row + 1;
+    classCounter++;
+    maxClassNumber++;
     enemyCount = 0;
     for (i = 0; i < limit; i++) {
         if (enemyCount < 1) {
@@ -2377,6 +2379,8 @@ function checkCrossAttack(row, col, team, limit, uniqueClass) {
     if (col < 7) {
         enemyCount = 0;
         let checkCol = col + 1;
+        classCounter++;
+    maxClassNumber++;
 
         // check horizontal moves to the right
         for (let i = 0; i < limit; i++) {
