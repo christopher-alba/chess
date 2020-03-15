@@ -17,6 +17,14 @@ let enpassantWhitePieces = [];
 var currentEmpassantPiece;
 let performingEmpassant = false;
 
+let blockingPieces = [];
+let possibleMoves = [];
+
+function BlockingPiece(row,col){
+    this.row = row;
+    this.col = col;
+}
+
 var blockingPiece = {
     piece: undefined,
     possibleMoves: []
@@ -977,11 +985,17 @@ function displayPossibleMove(row, col, type,origin) {
     }
     else if(currentlyBlocking == true){
         // check to see if origin matches blocking piece's co-ordinates
-        console.log(blockingPiece);
-        
-        if(origin[0] == blockingPiece.piece[0] && origin[1] == blockingPiece.piece[1]){
-            for(let i = 0; i < blockingPiece.possibleMoves.length;i++){
-                if(row == blockingPiece.possibleMoves[i][0] && col == blockingPiece.possibleMoves[i][1]){
+        locatedBlockingPiece = false;
+        for(let h = 0; h < blockingPieces.length;h++){
+            if(origin[0] == blockingPieces[h].row && origin[1] == blockingPieces[h].col){
+                locatedBlockingPiece = true;
+            }
+        }
+      
+    
+        if(locatedBlockingPiece == true){
+            for(let i = 0; i < possibleMoves.length;i++){
+                if(row == possibleMoves[i][0] && col == possibleMoves[i][1]){
                     $("." + row + "x" + col).addClass("possibleMove");
 
                     let piece = $("." + row + "x" + col + "piece");
@@ -997,8 +1011,12 @@ function displayPossibleMove(row, col, type,origin) {
             let piece = $("." + row + "x" + col + "piece");
             if (piece != undefined) {
                 piece.addClass("possibleMove");
+                
             }
         }
+        
+        
+        
     }
     else {
         $("." + row + "x" + col).addClass("possibleMove");
@@ -1014,9 +1032,17 @@ function displayPossibleMove(row, col, type,origin) {
 function displayPossibleEmpassant(row, col,origin) {
 
     if(currentlyBlocking == true){
-        if(origin[0] == blockingPiece.piece[0] && origin[1] == blockingPiece.piece[1]){
-            for(let i = 0; i < blockingPiece.possibleMoves.length;i++){
-                if(row == blockingPiece.possibleMoves[i][0] && col == blockingPiece.possibleMoves[i][1]){
+        locatedBlockingPiece = false;
+        for(let h = 0; h < blockingPieces.length;h++){
+            if(origin[0] == blockingPieces[h].row && origin[1] == blockingPieces[h].col){
+                locatedBlockingPiece = true;
+            }
+        }
+
+        
+        if(locatedBlockingPiece == true){
+            for(let i = 0; i < possibleMoves.length;i++){
+                if(row == possibleMoves[i][0] && col == possibleMoves[i][1]){
                     $("." + row + "x" + col).addClass("possibleMove");
                     $("." + row + "x" + col).addClass("possibleEmpassant");
 
@@ -1030,14 +1056,16 @@ function displayPossibleEmpassant(row, col,origin) {
         }
         else{
             $("." + row + "x" + col).addClass("possibleMove");
-                    $("." + row + "x" + col).addClass("possibleEmpassant");
+            $("." + row + "x" + col).addClass("possibleEmpassant");
 
-                    let piece = $("." + row + "x" + col + "piece");
-                    if (piece != undefined) {
-                        piece.addClass("possibleEmpassant");
-                        piece.addClass("possibleMove");
-                    } 
+            let piece = $("." + row + "x" + col + "piece");
+            if (piece != undefined) {
+                piece.addClass("possibleEmpassant");
+                piece.addClass("possibleMove");
+            } 
         }
+        
+        
     }
     else{
         $("." + row + "x" + col).addClass("possibleMove");
@@ -1053,7 +1081,15 @@ function displayPossibleEmpassant(row, col,origin) {
 }
 function displayPawnExchange(row, col,origin) {
     if(currentlyBlocking == true){
-        if(origin[0] == blockingPiece.piece[0] && origin[1] == blockingPiece.piece[1]){
+        locatedBlockingPiece = false;
+
+        for(let h = 0; h < blockingPieces.length;h++){
+            if(origin[0] == blockingPieces[h].row && origin[1] == blockingPieces[h].col){
+                locatedBlockingPiece = true;
+            }
+        }
+
+        if(locatedBlockingPiece == true){
             for(let i = 0; i < blockingPiece.possibleMoves.length;i++){
                 if(row == blockingPiece.possibleMoves[i][0] && col == blockingPiece.possibleMoves[i][1]){
                     let newTile = document.getElementsByClassName(row + "x" + col)[0];
@@ -1463,7 +1499,7 @@ function checkAttackLines() {
     let enemyCanBlock = false;
     let enemyCanKill = false;
     var uniqueAttackLine;
-    var piercingAttackLine;
+    let piercingAttackLines = [];
     currentlyInCheck = false;
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
@@ -1549,7 +1585,7 @@ function checkAttackLines() {
                 if ($("." + i + "x" + j).children().hasClass("fa-chess-king")) {
                     for (let k = 0; k <= maxClassNumber; k++) {
                         if ($("." + i + "x" + j).hasClass("piercing" + k)) {
-                            piercingAttackLine = k;
+                            piercingAttackLines.push(k);
                             console.log("piercing line located");
 
                         }
@@ -1559,8 +1595,7 @@ function checkAttackLines() {
         }
     }
 
-    let pieceCounter = 0;
-    let pieceLocations = [];
+    let pieceCounter = 0; 
     // count and locate all the pieces that are inside the piercing attack line
 
     // for the bishops, rooks and queen, display an attackline that ignores all enemy pieces except the king.
@@ -1568,33 +1603,37 @@ function checkAttackLines() {
     // if the number of pieces count to 3 (the attacking piece, the blocking piece, and the king, only allow that piece's movement to be inside the attack line.
     // if the number of pieces count to greater than 3, allow all movement to occur.
 
-    blockingPiece.possibleMoves = [];
-    if (piercingAttackLine != undefined) {
+    blockingPieces = [];
+    possibleMoves = [];
+
+    for(let h = 0; h < piercingAttackLines.length; h++){
+       
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
-                if ($("." + i + "x" + j).hasClass("piercing" + piercingAttackLine)) {
-                    blockingPiece.possibleMoves.push([i,j]);
+                if ($("." + i + "x" + j).hasClass("piercing" + piercingAttackLines[h])) {
+                    possibleMoves.push([i,j]);
                     if ($("." + i + "x" + j).children().length > 0) {
-                        pieceCounter++;
+
+                        
                         // if piece is not of the same team, or not the enemyking, save the location
                         if ($("." + i + "x" + j).children()[0].classList.contains(currentTeam + "Piece") == false && $("." + i + "x" + j).children()[0].classList.contains("fa-chess-king") == false) {
-                            pieceLocations.push([i, j]);
+                            blockingPieces.push(new BlockingPiece(i,j));
+                            pieceCounter++;
                         }
                     }
                 }
             }
         }
+        
     }
+   
 
-    // console.log(pieceCounter);
-    // console.log(pieceLocations);
+
     currentlyBlocking = false;
-    if (pieceCounter == 3) {
+    if (pieceCounter > 0) {
         
         currentlyBlocking = true;
         
-        // save the position of the blocking piece to a global variable
-        blockingPiece.piece = pieceLocations[0];
     }
 
 
